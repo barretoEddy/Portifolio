@@ -1,0 +1,53 @@
+.conclusion-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh; /* Ensure it takes at least full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Hide overflowing canvas parts */
+  color: white; /* Default text color */
+  text-align: center;
+  padding: 40px 20px; /* Add some padding */
+}
+
+.conclusion-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Position behind content */
+  pointer-events: none; /* Allow mouse events to pass through */
+}
+
+.conclusion-content {
+  position: relative;
+  z-index: 2; /* Position content above canvas */
+  max-width: 800px; /* Limit content width */
+  margin: 0 auto; /* Center content */
+}
+
+.conclusion-content h2 {
+  font-size: 2.5rem; /* Adjust font size as needed */
+  margin-bottom: 30px;
+  /* Add neon effect if desired, similar to Hero section */
+}
+
+.social-links {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Space between icons */
+}
+
+.social-links a {
+  color: white; /* Icon color */
+  font-size: 1.5rem; /* Icon size */
+  transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #0ff; /* Hover color (neon-like) */
+}

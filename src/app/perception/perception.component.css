@@ -1,0 +1,70 @@
+/* src/app/perception/perception.component.css */
+
+.perception-container {
+  height: 100vh; /* Adjust as needed for the scroll duration */
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #1a1a2e; /* Dark background */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.road-silhouette {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%; /* Adjust height of the road */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+  z-index: 1;
+}
+
+.scene-elements {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.car-element,
+.pedestrian-element,
+.sign-element {
+  position: absolute;
+  opacity: 0; /* Initially hidden */
+}
+
+.bounding-box {
+  position: absolute;
+  border: 2px solid #00ffff; /* Neon color */
+  box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; /* Neon glow */
+  opacity: 0; /* Initially hidden */
+  pointer-events: none; /* Don't interfere with mouse events */
+}
+
+.bounding-box-label {
+  position: absolute;
+  top: -20px; /* Position above the box */
+  left: 0;
+  color: #00ffff; /* Neon color */
+  font-size: 0.8em;
+  opacity: 0; /* Initially hidden */
+}
+
+.explanation-text {
+  position: absolute;
+  right: 50px; /* Position to the side */
+  width: 300px; /* Adjust width */
+  opacity: 0; /* Initially hidden */
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 5px;
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 10px #00ffff;
+}
