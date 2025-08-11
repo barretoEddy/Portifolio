@@ -7,7 +7,7 @@ import { CabinComponent } from './cabin/cabin.component';
 import { ConclusionComponent } from './conclusion/conclusion.component';
 
 @Component({ // Include CommonModule and the section components
-  standalone: true, // Make it a standalone component
+  standalone: true, 
   selector: 'app-root',
   imports: [
     HeroComponent,

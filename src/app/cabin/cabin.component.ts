@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import anime from 'animejs';
+import * as anime from 'animejs';
  
 @Component({
   selector: 'app-cabin',

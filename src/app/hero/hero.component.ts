@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import * as anime from 'animejs';interface Particle {
+import { animate, text, onScroll,  } from 'animejs';
+
+interface Particle {
   x: number;
   y: number;
   vx: number;
@@ -61,7 +63,7 @@ export class HeroComponent implements AfterViewInit {
   }
 
   animateText(): void {
-    (anime as any)({
+    (animate as any)({
       targets: ['h1', 'h2'], // Target the h1 and h2 elements
       opacity: [0, 1], // Animate opacity from 0 to 1
       duration: 2000, // Animation duration in milliseconds
