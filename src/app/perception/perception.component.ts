@@ -67,7 +67,7 @@ export class PerceptionComponent implements AfterViewInit, OnDestroy {
 
           // ESTA É A MUDANÇA PRINCIPAL!
           // 'play': Anima ao entrar na tela (scroll para baixo)
-          // 'none': Não faz nada ao sair da tela (scroll para baixo)
+          // 'pause': pausa ao sair da tela (scroll para baixo)
           // 'none': Não faz nada ao re-entrar na tela (scroll para cima)
           // 'reverse': Reverte a animação ao sair da tela (scroll para cima)
           toggleActions: 'restart pause none reverse',
