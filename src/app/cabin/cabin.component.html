@@ -1,20 +1,26 @@
-<section class="cabin-section">
-  <div class="digital-dashboard">
-    <div class="dashboard-map-area">
-      <!-- Map visualization will go here -->
-      <p>Map Area</p>
-    </div>
-    <div class="dashboard-music-area">
-      <!-- Music player widget will go here -->
-      <p>Music Player</p>
-    </div>
-    <div class="dashboard-controls">
-      <button class="mode-button" id="travel-mode-button">Modo Viagem</button>
-      <button class="mode-button" id="urban-mode-button">Modo Urbano</button>
-    </div>
-    <div class="dashboard-lighting-border top-border"></div>
-    <div class="dashboard-lighting-border right-border"></div>
-    <div class="dashboard-lighting-border bottom-border"></div>
-    <div class="dashboard-lighting-border left-border"></div>
+<div class="about-content container">
+  <div class="about-text" appGsapReveal>
+    <h2 class="reveal">Sobre Mim</h2>
+    <p class="reveal">
+      Olá! Sou o Eddy, um desenvolvedor apaixonado por criar aplicações web intuitivas e performáticas. Com sólida experiência em Angular,
+      TypeScript e tecnologias front-end modernas,
+      meu foco é transformar ideias complexas em soluções elegantes e funcionais.
+    </p>
+    <p class="reveal">
+      Aqui estão algumas das tecnologias com as quais tenho trabalhado recentemente:
+    </p>
+    <ul class="skills-list reveal">
+      <li>Angular</li>
+      <li>TypeScript</li>
+      <li>Gsap</li>
+      <li>ReactJs</li>
+      <li>Tailwind CSS</li>
+      <li>Node.js</li>
+    </ul>
   </div>
-</section>
+  <div class="about-image reveal">
+    <div class="image-placeholder" appGsapReveal [y]="50" [duration]="1">
+      Sua foto aqui
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<header [class.scrolled]="headerScrolled()">
+  <nav class="container">
+    <a href="#hero" class="logo" (click)="closeMobileMenu()">SEU_LOGO</a>
+    <div class="menu-icon" (click)="toggleMobileMenu()">
+      <svg *ngIf="!mobileMenuOpen()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+      <svg *ngIf="mobileMenuOpen()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </div>
+    <ul class="nav-links" [class.active]="mobileMenuOpen()">
+      @for(link of navLinks; track link.anchor) {
+        <li>
+          <a [href]="'#' + link.anchor" (click)="closeMobileMenu()">{{ link.label }}</a>
+        </li>
+      }
+    </ul>
+  </nav>
+</header>

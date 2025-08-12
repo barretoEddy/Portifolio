@@ -1,88 +1,81 @@
-/* src/app/cabin/cabin.component.css */
-
-.cabin-container {
-    width: 100%;
-    height: 100vh; /* Or adjust based on surrounding sections */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #1a1a2e; /* Dark futuristic background */
-    color: #e94560; /* Neon-like color */
-    padding: 20px;
-    box-sizing: border-box;
-    overflow: hidden; /* Hide overflow from animations */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-secondary);
 }
 
-.digital-dashboard {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Example layout: Map on left, Music/Controls on right */
-    gap: 20px;
-    width: 90%;
-    max-width: 1200px;
-    height: 70vh;
-    border: 2px solid #0f3460; /* Dashboard border */
-    padding: 20px;
-    box-sizing: border-box;
-    position: relative; /* For positioning lighting effects */
-    overflow: hidden;
+.about-content {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 30px;
+  align-items: center;
 }
 
-.map-area {
-    grid-column: 1 / 2;
-    background-color: #0a1931; /* Dark background for map */
-    border: 1px solid #0f3460;
-    position: relative;
-    overflow: hidden;
+h2 {
+  font-size: 2.5rem;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+  position: relative;
 }
 
-.music-player-area {
-    grid-column: 2 / 3;
-    background-color: #0a1931;
-    border: 1px solid #0f3460;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-    box-sizing: border-box;
+p {
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin-bottom: 15px;
 }
 
-.lighting-border {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Allow interaction with elements below */
-    box-shadow: 0 0 20px 5px rgba(233, 69, 96, 0.5); /* Default neon glow */
-    transition: box-shadow 0.5s ease; /* Smooth transition for glow color */
+.skills-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 200px));
+  gap: 10px;
+  padding: 0;
+  margin: 20px 0 0;
+  list-style: none;
+  margin-bottom: 20px;
+
 }
 
-.mode-buttons {
-    margin-top: 30px;
-    display: flex;
-    gap: 20px;
+.skills-list li {
+  position: relative;
+  padding-left: 20px;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
 }
 
-.mode-button {
-    padding: 10px 20px;
-    background-color: #0f3460;
-    color: #e94560;
-    border: 1px solid #e94560;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+.skills-list li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
 }
 
-.mode-button:hover {
-    background-color: #e94560;
-    color: #1a1a2e;
-    border-color: #1a1a2e;
+.image-placeholder {
+  width: 100%;
+  max-width: 300px;
+  height: 300px;
+  background-color: var(--color-accent);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-weight: bold;
+  margin: 0 auto;
 }
 
-.mode-button:active {
-    background-color: #c0392b;
-    border-color: #c0392b;
+/* --- Lógica da Animação de Scroll --- */
+/* Agora a logica ficou com a diretiva Gsap */
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .skills-list {
+    margin: 20px auto 0;
+  }
 }

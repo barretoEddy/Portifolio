@@ -1,70 +1,141 @@
-/* src/app/perception/perception.component.css */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-primary);
+}
 
-.perception-container {
-  height: 100vh; /* Adjust as needed for the scroll duration */
-  width: 100%;
+.portfolio-content {
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  color: var(--color-accent);
+  margin-bottom: 50px;
+}
+
+.project-item {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+/* Estilos para a imagem */
+.project-image {
+  grid-column: 1 / 8;
+  grid-row: 1 / -1;
   position: relative;
-  overflow: hidden;
-  background-color: #1a1a2e; /* Dark background */
-  color: #ffffff;
+}
+
+.project-item.text-right .project-image {
+  grid-column: 6 / -1;
+}
+
+.project-image .image-placeholder {
+  width: 100%;
+  height: 350px;
+  background-color: var(--color-secondary);
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  color: var(--color-text-light);
+  font-weight: bold;
+  transition: transform 0.3s ease;
 }
 
-.road-silhouette {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30%; /* Adjust height of the road */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
-  z-index: 1;
+.project-image a:hover .image-placeholder {
+    transform: scale(1.02);
 }
 
-.scene-elements {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
+/* Estilos para o conteúdo */
+.project-info {
+  grid-column: 7 / -1;
+  grid-row: 1 / -1;
+  position: relative;
   z-index: 2;
+  text-align: right;
 }
 
-.car-element,
-.pedestrian-element,
-.sign-element {
-  position: absolute;
-  opacity: 0; /* Initially hidden */
+.project-item.text-right .project-info {
+  grid-column: 1 / 7;
+  text-align: left;
 }
 
-.bounding-box {
-  position: absolute;
-  border: 2px solid #00ffff; /* Neon color */
-  box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; /* Neon glow */
-  opacity: 0; /* Initially hidden */
-  pointer-events: none; /* Don't interfere with mouse events */
+.project-title a {
+  font-size: 1.8rem;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.bounding-box-label {
-  position: absolute;
-  top: -20px; /* Position above the box */
-  left: 0;
-  color: #00ffff; /* Neon color */
-  font-size: 0.8em;
-  opacity: 0; /* Initially hidden */
+.project-title a:hover {
+  color: var(--color-accent);
 }
 
-.explanation-text {
-  position: absolute;
-  right: 50px; /* Position to the side */
-  width: 300px; /* Adjust width */
-  opacity: 0; /* Initially hidden */
-  z-index: 3;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
+.project-description {
+  background-color: var(--color-secondary);
+  color: var(--color-text-light);
+  padding: 25px;
   border-radius: 5px;
-  border: 1px solid #00ffff;
-  box-shadow: 0 0 10px #00ffff;
+  margin-top: 20px;
+  box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+}
+
+.project-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 15px;
+  list-style: none;
+  margin: 20px 0;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.project-item.text-right .project-tech-list {
+  justify-content: flex-start;
+}
+
+.project-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.project-item.text-right .project-links {
+  justify-content: flex-start;
+}
+
+.project-links a {
+  color: var(--color-text-light);
+  transition: color 0.3s ease;
+}
+
+.project-links a:hover {
+  color: var(--color-accent);
+}
+
+.project-links svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .project-image, .project-item.text-right .project-image,
+  .project-info, .project-item.text-right .project-info {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .project-info {
+    padding: 20px;
+    background-color: rgba(17, 34, 64, 0.8);
+  }
+  .project-tech-list, .project-links {
+    justify-content: flex-start;
+  }
 }

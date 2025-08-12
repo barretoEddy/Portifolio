@@ -37,6 +37,7 @@
     "@angular/cli": "^18.0.0",
     "@angular/compiler": "^18.0.0",
     "@angular/forms": "^18.0.0",
+    "@types/gsap": "^1.20.2",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.0.0",
     "jasmine-core": "~5.8.0",

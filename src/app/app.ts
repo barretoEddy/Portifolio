@@ -1,30 +1,33 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeroComponent } from './hero/hero.component';
-import { PerceptionComponent } from './perception/perception.component';
-import { MaintenanceComponent } from './maintenance/maintenance.component';
-import { CabinComponent } from './cabin/cabin.component';
-import { ConclusionComponent } from './conclusion/conclusion.component';
+import { RouterOutlet } from '@angular/router';
 
-@Component({ // Include CommonModule and the section components
-  standalone: true, 
+// Importe todos os seus componentes de seção
+import { HeaderComponent } from './header/header.component';
+import { HeroComponent } from './hero/hero.component';
+import { CabinComponent } from './cabin/cabin.component';
+import { MaintenanceComponent } from './maintenance/maintenance.component';
+import { PerceptionComponent } from './perception/perception.component';
+import { ConclusionComponent } from './conclusion/conclusion.component';
+import { FooterComponent } from './footer/footer.component';
+
+@Component({
   selector: 'app-root',
+  standalone: true,
   imports: [
+    CommonModule,
+    // RouterOutlet,
+    HeaderComponent, // Adicionado
     HeroComponent,
-    PerceptionComponent,
-    MaintenanceComponent,
     CabinComponent,
+    MaintenanceComponent,
+    PerceptionComponent,
     ConclusionComponent,
-    CommonModule
-  ], // Include CommonModule and the section components
-  template: `
- <app-hero></app-hero>
-    <app-perception></app-perception>
-    <app-maintenance></app-maintenance>
-    <app-cabin></app-cabin>
-    <app-conclusion></app-conclusion>
-    <div class="custom-cursor"></div>
-  `, // Include the section components
-  styleUrls: [] // No specific styles for now // Added comma
+    FooterComponent,
+  ],
+  templateUrl: './app.html',
+  styleUrl: './app.css',
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'Angular_Project';
+}

@@ -1,94 +1,103 @@
-import { Component, ChangeDetectionStrategy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-perception',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <section class="perception-section">
- <div class="perception-container">
- <div class="road-silhouette"></div>
- <div class="scene-elements">
-        <!-- Placeholder elements for cars, pedestrians, signs with bounding boxes and labels -->
- <div class="element-container">
- <div class="car"></div>
- <div class="bounding-box">VEÍCULO: 98%</div>
- </div>
- <div class="element-container"><div class="pedestrian"></div><div class="bounding-box">PEDESTRE: 92%</div></div>
- <div class="element-container"><div class="sign"></div><div class="bounding-box">SINAL: 99%</div></div>
- </div>
- <div class="explanation-text">
- <p>A Inteligência Artificial analisa dados de sensores para entender o ambiente.</p>
- </div>
-      </div>
-    </section>
-  `,
-  styles: `
-    /* Add component-specific styles here */
-    :host {
-      display: block;
-      min-height: 100vh; /* Placeholder height */
- background-color: #f0f0f0; /* Placeholder background */
-      position: relative;
- overflow: hidden;
-    }
-    .perception-container {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-    }
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './perception.component.html',
+  styleUrl: './perception.component.css'
 })
-export class PerceptionComponent implements AfterViewInit {
+export class PerceptionComponent implements AfterViewInit, OnDestroy {
 
-  @ViewChild( 'perceptionSection', { static: true } ) section!: ElementRef;
+  private triggers: ScrollTrigger[] = [];
+
+  // Seus dados de projetos
+  projects = [
+    {
+      title: 'Nome do Projeto 1',
+      description: 'Uma breve descrição sobre o projeto...',
+      tech: ['Angular', 'TypeScript', 'Firebase', 'SCSS'],
+      liveUrl: '#',
+      repoUrl: '#'
+    },
+    {
+      title: 'Nome do Projeto 2',
+      description: 'Outro projeto incrível...',
+      tech: ['React', 'Next.js', 'Vercel', 'TailwindCSS'],
+      liveUrl: '#',
+      repoUrl: '#'
+    },
+    {
+      title: 'Nome do Projeto 3',
+      description: 'Este projeto pode ser um aplicativo mobile...',
+      tech: ['Vue', 'Node.js', 'MongoDB', 'GraphQL'],
+      liveUrl: '#',
+      repoUrl: '#'
+    }
+  ];
+
+  constructor(private elementRef: ElementRef) {}
+
   ngAfterViewInit(): void {
-    const section = this.section.nativeElement;
-    const road = section.querySelector('.road-silhouette');
-    const sceneElements = section.querySelectorAll('.scene-elements > div'); // Select placeholder elements
-    const boundingBoxes = section.querySelectorAll('.bounding-box'); // Select placeholder bounding boxes
+    // Usamos um pequeno atraso para garantir que o @for do Angular terminou 100%
+    setTimeout(() => {
+      this.initAnimations();
+    }, 100);
+  }
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top', // Start when the top of the section hits the top of the viewport
-        end: '+=1000', // End after scrolling 1000px down from the start
-        scrub: true, // Link animation progress to scroll position
-        pin: true, // Pin the section while scrolling
-        markers: true, // Optional: shows markers for debugging
-      },
+  private initAnimations(): void {
+    const projectItems: HTMLElement[] = this.elementRef.nativeElement.querySelectorAll('.project-item');
+
+    projectItems.forEach((item, index) => {
+      const image = item.querySelector('.project-image');
+      const info = item.querySelector('.project-info');
+
+      if (!image || !info) return;
+
+      // Criamos uma timeline de animação para este item.
+      // O ScrollTrigger agora fica DENTRO da timeline, o que nos dá mais controle.
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 85%',
+          end: 'bottom top', // Define um fim para a área de ação
+
+          // ESTA É A MUDANÇA PRINCIPAL!
+          // 'play': Anima ao entrar na tela (scroll para baixo)
+          // 'none': Não faz nada ao sair da tela (scroll para baixo)
+          // 'none': Não faz nada ao re-entrar na tela (scroll para cima)
+          // 'reverse': Reverte a animação ao sair da tela (scroll para cima)
+          toggleActions: 'restart pause none reverse',
+
+          // markers: true, // depuração
+        }
+      });
+
+      const isEven = index % 2 === 0;
+
+      // Usamos .from() que anima DE um estado para o estado atual no CSS.
+      // Isso simplifica o código, não precisamos mais do gsap.set().
+      if (isEven) {
+        // PROJETO PAR: Imagem da esquerda, texto da direita
+        tl
+          .from(image, { x: -100, opacity: 0, duration: 1, ease: 'power3.out' })
+          .from(info, { x: 100, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.8'); // Começa 0.8s antes do fim da animação da imagem
+      } else {
+        // PROJETO ÍMPAR: Imagem da direita, texto da esquerda
+        tl
+          .from(image, { x: 100, opacity: 0, duration: 1, ease: 'power3.out' })
+          .from(info, { x: -100, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.8');
+      }
+
+      // Guardamos a referência do ScrollTrigger da timeline para limpar depois
+      this.triggers.push(tl.scrollTrigger!);
     });
+  }
 
-    // Initial state (dark background)
-    tl.to(section, {
-      backgroundColor: '#000',
-      duration: 0.2,
-    });
-
-    // Animate in the road silhouette
-    tl.from(road, {
-      opacity: 0,
-      y: '100%',
-      duration: 0.3,
-    });
-
-    // Animate in the scene elements and bounding boxes progressively
-    tl.from(sceneElements, {
-      opacity: 0,
-      stagger: 0.1, // Animate elements with a slight delay
-      duration: 0.2,
-    }, '-=0.1'); // Start slightly before the previous animation ends
-
-    tl.from(boundingBoxes, {
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.2,
-    }, '-=0.1');
+  ngOnDestroy(): void {
+    this.triggers.forEach(trigger => trigger.kill());
   }
 }
