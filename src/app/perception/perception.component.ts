@@ -33,7 +33,7 @@ export class PerceptionComponent implements AfterViewInit, OnDestroy {
     {
       title: 'Nome do Projeto 3',
       description: 'Este projeto pode ser um aplicativo mobile...',
-      tech: ['Vue', 'Node.js', 'MongoDB', 'GraphQL'],
+      tech: ['React', 'Node.js', 'MongoDB', 'Express'],
       liveUrl: '#',
       repoUrl: '#'
     }
