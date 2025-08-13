@@ -1,5 +1,3 @@
-// src/app/app.ts (ARQUITETURA FINAL E DEFINITIVA)
-
 import { Component, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
@@ -7,10 +5,10 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 
-// Importe todos os seus componentes de seção
-import { HeaderComponent } from './header/header.component';
-import { HeroComponent } from './hero/hero.component';
-import { CabinComponent } from './cabin/cabin.component';
+// Importe de todos os componentes de seção
+import { HeaderComponent } from './header/header.component'; //cabeçalho da pagina
+import { HeroComponent } from './hero/hero.component'; //Parte que contem a animação de particulas da pagina inicial
+import { CabinComponent } from './cabin/cabin.component'; //
 import { MaintenanceComponent } from './maintenance/maintenance.component';
 import { PerceptionComponent } from './perception/perception.component';
 import { ConclusionComponent } from './conclusion/conclusion.component';
@@ -20,7 +18,7 @@ import { FooterComponent } from './footer/footer.component';
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule, RouterOutlet, HeaderComponent, HeroComponent, CabinComponent,
+    CommonModule, HeaderComponent, HeroComponent, CabinComponent,
     MaintenanceComponent, PerceptionComponent, ConclusionComponent, FooterComponent
   ],
   templateUrl: './app.html',
@@ -28,12 +26,12 @@ import { FooterComponent } from './footer/footer.component';
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
 
-  private ctx!: gsap.Context; // Usaremos o contexto do GSAP para limpeza
+  private ctx!: gsap.Context; // Usar o contexto do GSAP para limpeza
 
   constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit(): void {
-    // Usamos um pequeno atraso para garantir que o DOM está 100% pronto
+    // um pequeno atraso para garantir que o DOM está 100% pronto
     setTimeout(() => {
 
       const main = this.elementRef.nativeElement;
@@ -56,7 +54,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       }, main); // O 'main' aqui define o escopo do nosso contexto
 
-    }, 100);
+    }, 100); //100ms de atraso para garantir que o DOM esteja pronto
   }
 
   // As funções abaixo permanecem quase iguais, mas agora operam dentro do contexto.
