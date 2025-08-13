@@ -1,34 +1,23 @@
-/* src/app/app.css (Atualizado) */
+/* src/app/app.css (ATUALIZAÇÃO FINAL) */
+
 main > section {
-  position: relative; /* Essencial para o z-index funcionar */
+  position: relative;
   padding: 100px 0;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Evita qualquer conteúdo de vazar */
+  overflow: hidden;
+  /* Aplicamos a cor de fundo primária a TODAS as seções */
+  background-color: var(--color-primary);
 }
 
-/* Definindo a ordem de empilhamento e o fundo de cada seção */
-#hero {
-  z-index: 5;
-  background-color: var(--color-primary);
-}
-#cabin {
-  z-index: 4;
-  background-color: var(--color-secondary);
-}
-#maintenance {
-  z-index: 3;
-  background-color: var(--color-primary);
-}
-#perception {
-  z-index: 2;
-  background-color: var(--color-secondary);
-}
+/* A ordem de empilhamento (z-index) ainda é necessária para o pinning funcionar */
+#hero { z-index: 5; }
+#cabin { z-index: 4; }
+#maintenance { z-index: 3; }
+#perception { z-index: 2; }
 #conclusion {
   z-index: 1;
-  background-color: var(--color-primary);
-  min-height: 70vh;
-  border-bottom: none;
+  min-height: 70vh; /* Mantém a seção de contato um pouco menor */
 }
