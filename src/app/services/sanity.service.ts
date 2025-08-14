@@ -26,7 +26,7 @@ export class SanityService {
       projectId: 'qacw4twj', // Mantenha o seu Project ID lembre-se da data tambem
       dataset: 'production',
       useCdn: true,
-      apiVersion: '2025-08-13',
+      apiVersion: '2024-05-20',
     });
 
     // 2. Inicialize o builder com o seu cliente
