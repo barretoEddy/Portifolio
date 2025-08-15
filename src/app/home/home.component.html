@@ -1,0 +1,19 @@
+<app-header />
+<main>
+  <section id="hero">
+    <app-hero />
+  </section>
+  <section id="cabin">
+    <app-cabin />
+  </section>
+  <section id="maintenance">
+    <app-maintenance />
+  </section>
+  <section id="perception">
+    <app-perception (contentRendered)="onPerceptionRendered()"></app-perception>
+  </section>
+  <section id="conclusion">
+    <app-conclusion />
+  </section>
+</main>
+<app-footer />

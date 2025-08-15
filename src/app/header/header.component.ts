@@ -1,24 +1,23 @@
 import { Component, ChangeDetectionStrategy, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router'; // Importe o RouterModule
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule], // Adicione RouterModule aqui
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css', // Corrigido para .css
+  styleUrl: './header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
   headerScrolled = signal(false);
   mobileMenuOpen = signal(false);
 
+  // Agora os caminhos são para rotas do Angular
   navLinks = [
-    { anchor: 'hero', label: 'Início' },
-    { anchor: 'cabin', label: 'Sobre Mim' },
-    { anchor: 'maintenance', label: 'Serviços' },
-    { anchor: 'perception', label: 'Portfólio' },
-    { anchor: 'conclusion', label: 'Contato' },
+    { path: '/', label: 'Início' },
+    { path: '/blog', label: 'Blog' },
   ];
 
   @HostListener('window:scroll', [])

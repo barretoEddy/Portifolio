@@ -10,9 +10,9 @@
       </svg>
     </div>
     <ul class="nav-links" [class.active]="mobileMenuOpen()">
-      @for(link of navLinks; track link.anchor) {
+      @for(link of navLinks; track link.path) {
         <li>
-          <a [href]="'#' + link.anchor" (click)="closeMobileMenu()">{{ link.label }}</a>
+          <a [routerLink]="link.path" (click)="closeMobileMenu()">{{ link.label }}</a>
         </li>
       }
     </ul>
