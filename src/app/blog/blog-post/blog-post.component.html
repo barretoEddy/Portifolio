@@ -1,1 +1,30 @@
-<p>blog-post works!</p>
+<div class="post-container">
+  <div *ngIf="isLoading; else content" class="loading-state">
+    <p>A carregar o artigo...</p>
+  </div>
+
+  <ng-template #content>
+    <div *ngIf="post; else notFound">
+      <a routerLink="/blog" class="back-link">← Voltar para todos os artigos</a>
+
+      <header class="post-header">
+        <h1>{{ post.title }}</h1>
+        <p class="post-meta">Publicado em {{ post.publishedAt | date:'d MMMM, y' }}</p>
+      </header>
+
+      <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-cover-image">
+
+      <div class="post-body">
+        <markdown [data]="post.body" lineNumbers></markdown>
+      </div>
+    </div>
+
+    <ng-template #notFound>
+      <div class="not-found-state">
+        <h2>Artigo não encontrado</h2>
+        <p>O artigo que você procura não existe ou foi movido.</p>
+        <a routerLink="/blog" class="back-link">← Voltar para o Blog</a>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>

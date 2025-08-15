@@ -1,3 +1,7 @@
+/* Adicione estas linhas no topo de src/styles.css */
+@import "prismjs/themes/prism-tomorrow.css";
+@import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+
 /* Variáveis Globais de Estilo */
 :root {
   /* Cores Base */

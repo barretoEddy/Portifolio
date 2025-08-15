@@ -30,7 +30,8 @@
     "@sanity/image-url": "^1.1.0",
     "animejs": "^4.1.2",
     "gsap": "^3.13.0",
-    "ngx-markdown": "^20.0.0",
+    "ngx-markdown": "^18.1.0",
+    "prismjs": "^1.30.0",
     "rxjs": "~7.8.0",
     "zone.js": "~0.14.3"
   },

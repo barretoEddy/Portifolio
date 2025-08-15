@@ -1,1 +1,26 @@
-<p>blog-list works!</p>
+<div class="blog-list-container">
+  <header class="blog-header">
+    <h1>Blog Técnico</h1>
+    <p>Pensamentos, tutoriais e explorações sobre desenvolvimento de software.</p>
+    <a routerLink="/" class="back-link">← Voltar para a Página Principal</a>
+  </header>
+
+  <div *ngIf="isLoading; else content" class="loading-state">
+    <p>A carregar artigos...</p>
+  </div>
+
+  <ng-template #content>
+    <main class="post-grid">
+      @for (post of posts; track post._id) {
+        <a [routerLink]="['/blog', post.slug.current]" class="post-card">
+          <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-image">
+          <div class="post-content">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <p class="post-excerpt">{{ post.excerpt }}</p>
+            <p class="post-date">{{ post.publishedAt | date:'d MMMM, y' }}</p>
+          </div>
+        </a>
+      }
+    </main>
+  </ng-template>
+</div>

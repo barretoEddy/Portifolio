@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  padding: 50px 20px;
+}
+
+.post-container {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.post-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.post-header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.post-meta {
+  color: var(--color-text-light);
+}
+
+.post-cover-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 40px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 40px;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para o conteúdo renderizado pelo ngx-markdown */
+.post-body {
+  line-height: 1.7;
+  font-size: 1.1rem;
+}
+
+.post-body ::ng-deep h2,
+.post-body ::ng-deep h3 {
+  color: var(--color-accent);
+  margin-top: 2em;
+  margin-bottom: 1em;
+  border-bottom: 1px solid var(--color-secondary);
+  padding-bottom: 0.3em;
+}
+
+.post-body ::ng-deep p {
+  margin-bottom: 1.2em;
+}
+
+.post-body ::ng-deep a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.post-body ::ng-deep a:hover {
+  text-decoration: underline;
+}
+
+.post-body ::ng-deep pre {
+  background-color: var(--color-secondary) !important;
+  padding: 1em;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  overflow-x: auto;
+}
+
+.post-body ::ng-deep code {
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+}
