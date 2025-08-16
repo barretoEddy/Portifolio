@@ -55,7 +55,6 @@ export class SanityService {
     return this.client.fetch(query);
   }
 
-  // AQUI: O método que estava em falta, agora adicionado
   // Busca um único post pelo seu slug
   async getPostBySlug(slug: string): Promise<Post> {
     const query = '*[_type == "post" && slug.current == $slug][0]';
