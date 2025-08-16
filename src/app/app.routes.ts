@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // A rota principal que carrega o nosso portfólio
+  // A rota principal que carrega o portfólio
   {
     path: '',
     loadComponent: () => import('./home/home.component').then(m => m.HomeComponent)

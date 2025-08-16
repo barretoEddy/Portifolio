@@ -3,6 +3,9 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 
+// Importe do plugin de markdown 
+import {markdownSchema} from 'sanity-plugin-markdown'
+
 export default defineConfig({
   name: 'default',
   title: 'Meu Portifolio Pessoal',
@@ -10,7 +13,7 @@ export default defineConfig({
   projectId: 'qacw4twj',
   dataset: 'production',
 
-  plugins: [structureTool(), visionTool()],
+  plugins: [structureTool(), visionTool(), markdownSchema()],
 
   schema: {
     types: schemaTypes,
