@@ -28,11 +28,11 @@ export class ThreeDKeyboardService implements OnDestroy {
   constructor(private ngZone: NgZone) {}
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
-    this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x0a192f, 0.015);
+    this.scene = new THREE.Scene(); 
+    this.scene.fog = new THREE.FogExp2(0x0a192f, 0.01); // Adicionamos uma leve neblina para um efeito mais atmosférico
 
     // 2. CORREÇÃO DO CLIPPING: Ajustamos a câmara
-    // O terceiro parâmetro (near) foi aumentado de 0.1 para 1.
+    // O terceiro parâmetro (near) 
     // Isto significa que os objetos só serão cortados se estiverem muito mais perto.
     this.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 1000);
     this.camera.position.z = 30; // Afastámos ligeiramente a câmara para dar mais espaço
@@ -44,10 +44,10 @@ export class ThreeDKeyboardService implements OnDestroy {
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Luz ambiente mais suave
     this.scene.add(ambientLight);
     const pointLight = new THREE.PointLight(0x64ffda, 300, 200);
-    pointLight.position.set(0, 10, 25);
+    pointLight.position.set(0, 10, 25); 
     this.scene.add(pointLight);
 
     // Geramos a geometria e o material uma única vez
@@ -142,7 +142,7 @@ export class ThreeDKeyboardService implements OnDestroy {
           // Usamos o GSAP para uma interpolação suave
           gsap.to(key.position, {
             z: targetZ,
-            duration: 0.4,
+            duration: 1.4,
             ease: 'power2.out',
           });
           
@@ -151,8 +151,8 @@ export class ThreeDKeyboardService implements OnDestroy {
             r: targetColor.r,
             g: targetColor.g,
             b: targetColor.b,
-            duration: 0.4,
-            ease: 'power2.out',
+            duration: 1.5,
+            ease: 'power4.inOut',
           });
         });
 
