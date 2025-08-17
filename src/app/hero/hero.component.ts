@@ -1,32 +1,41 @@
-import { Component, ChangeDetectionStrategy, AfterViewInit, ViewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ParticleAnimationService } from '../services/particle-animation.service'; // Ajuste o caminho
+import { ThreeDKeyboardService } from '../services/three-d-keyboard.service'; // Importamos o novo serviço
 
 @Component({
   selector: 'app-hero',
   standalone: true,
   imports: [CommonModule],
-  providers: [ParticleAnimationService],
   templateUrl: './hero.component.html',
-  styleUrl: './hero.component.css', // Corrigido para .css
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './hero.component.css'
+  // O serviço já é 'providedIn: root', não precisamos de o fornecer aqui
 })
 export class HeroComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('backgroundCanvas', { static: true })
+  // Pegamos a referência do canvas do template
+  @ViewChild('webglCanvas', { static: true }) 
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private animationService: ParticleAnimationService) {}
-
-  @HostListener('window:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    this.animationService.updateMousePosition(event);
-  }
+  // Injetamos o serviço
+  private threeDService = inject(ThreeDKeyboardService);
 
   ngAfterViewInit(): void {
-    this.animationService.init(this.canvasRef);
+    // Passamos o canvas para o serviço para que ele possa criar a cena 3D
+    this.threeDService.createScene(this.canvasRef);
   }
 
   ngOnDestroy(): void {
-    this.animationService.destroy();
+    // Chamamos o método de limpeza do serviço
+    this.threeDService.ngOnDestroy();
+  }
+
+  // Adicionamos listeners para redimensionar a cena e seguir o rato
+  @HostListener('window:resize')
+  onResize() {
+    this.threeDService.resize();
+  }
+  
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    this.threeDService.updateMousePosition(event);
   }
 }
