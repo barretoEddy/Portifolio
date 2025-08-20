@@ -7,11 +7,13 @@ import { RoundedBoxGeometry } from './three-addons/RoundedBoxGeometry';
 @Injectable({
   providedIn: 'root'
 })
+
 export class ThreeDKeyboardService implements OnDestroy {
   private camera!: THREE.PerspectiveCamera;
   private scene!: THREE.Scene;
   private renderer!: THREE.WebGLRenderer;
   private keys: THREE.Mesh[] = [];
+  private keyboardGroup!: THREE.Group; // Novo grupo para as teclas
   private mouse = new THREE.Vector2(-10, -10);
   private raycaster = new THREE.Raycaster();
   private waveCenter = new THREE.Vector3(999, 999, 999); // Inicia o centro da onda longe
@@ -28,12 +30,10 @@ export class ThreeDKeyboardService implements OnDestroy {
   constructor(private ngZone: NgZone) {}
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
-    this.scene = new THREE.Scene(); 
+    this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a192f, 0.01); // Adicionamos uma leve neblina para um efeito mais atmosférico
 
     // 2. CORREÇÃO DO CLIPPING: Ajustamos a câmara
-    // O terceiro parâmetro (near) 
-    // Isto significa que os objetos só serão cortados se estiverem muito mais perto.
     this.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 1000);
     this.camera.position.z = 30; // Afastámos ligeiramente a câmara para dar mais espaço
 
@@ -47,7 +47,7 @@ export class ThreeDKeyboardService implements OnDestroy {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Luz ambiente mais suave
     this.scene.add(ambientLight);
     const pointLight = new THREE.PointLight(0x64ffda, 300, 200);
-    pointLight.position.set(0, 10, 25); 
+    pointLight.position.set(0, 10, 25);
     this.scene.add(pointLight);
 
     // Geramos a geometria e o material uma única vez
@@ -58,8 +58,14 @@ export class ThreeDKeyboardService implements OnDestroy {
       roughness: 0.4
     });
 
-    this.createKeyboardLayout();
-    this.animate();
+  // Cria o grupo de teclas e aplica rotação de 45°
+  this.keyboardGroup = new THREE.Group();
+  this.createKeyboardLayout();
+  this.keyboardGroup.rotation.x = -Math.PI / 4; // Inclina 45° para "frente"
+  this.keyboardGroup.position.x = 15; // Move o teclado para a direita
+  this.scene.add(this.keyboardGroup);
+
+  this.animate();
   }
   private createKeyGeometry(): THREE.BufferGeometry {
     const shape = new THREE.Shape();
@@ -92,15 +98,8 @@ export class ThreeDKeyboardService implements OnDestroy {
     const keySize = 5; // Tamanho das teclas
     const keyDepth = 0.8; // Um pouco mais espessas que a última versão
     const spacing = 0.8;
-    const numCols = 8;
+    const numCols = 4;
     const numRows = 3;
-
-    // const geometry = new RoundedBoxGeometry(keySize, keySize, keyDepth, 5, 0.3); 
-    // const material = new THREE.MeshStandardMaterial({
-    //   color: this.baseColor,
-    //   metalness: 0.9,
-    //   roughness: 0.5,
-    // });
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
@@ -111,7 +110,7 @@ export class ThreeDKeyboardService implements OnDestroy {
         key.rotation.z = Math.PI / 2.2; // Rotacionamos para a orientação correta
         key.scale.set(0.9, 0.9, 0.9);
         this.keys.push(key);
-        this.scene.add(key);
+        this.keyboardGroup.add(key); // Adiciona ao grupo, não à cena
       }
     }
   }
@@ -119,6 +118,9 @@ export class ThreeDKeyboardService implements OnDestroy {
   private animate(): void {
     this.ngZone.runOutsideAngular(() => {
       const loop = () => {
+        // Faz o teclado girar continuamente em torno do eixo Y
+        this.keyboardGroup.rotation.y += 0.003;
+
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const intersects = this.raycaster.intersectObjects(this.keys);
 
@@ -135,7 +137,7 @@ export class ThreeDKeyboardService implements OnDestroy {
         this.keys.forEach(key => {
           const distance = key.position.distanceTo(this.waveCenter);
           const influence = Math.max(0, 1 - (distance / maxDistance));
-          
+
           // A tecla sob o rato sobe (peakHeight), as outras descem (baseHeight).
           const targetZ = baseHeight + (peakHeight - baseHeight) * influence;
 
@@ -145,7 +147,7 @@ export class ThreeDKeyboardService implements OnDestroy {
             duration: 1.4,
             ease: 'power2.out',
           });
-          
+
           const targetColor = new THREE.Color().lerpColors(this.baseColor, this.hoverColor, influence);
           gsap.to((key.material as THREE.MeshStandardMaterial).color, {
             r: targetColor.r,
@@ -162,19 +164,19 @@ export class ThreeDKeyboardService implements OnDestroy {
       loop();
     });
   }
-  
+
   public ngOnDestroy(): void {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
   }
-  
+
   public resize(): void {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
-  
+
   public updateMousePosition(event: MouseEvent): void {
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
