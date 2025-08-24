@@ -40,9 +40,14 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas.nativeElement,
       alpha: true,
-      antialias: true
+      antialias: true,
+      preserveDrawingBuffer: false,
+      powerPreference: "high-performance"
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limita o pixel ratio para evitar desfoque
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.NoToneMapping;
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Luz ambiente mais suave
     this.scene.add(ambientLight);
@@ -196,6 +201,7 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mantém o pixel ratio limitado
   }
 
   public updateMousePosition(event: MouseEvent): void {

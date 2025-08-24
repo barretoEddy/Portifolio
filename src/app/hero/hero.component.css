@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #1a365d 100%);
+  /* background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #1a365d 100%); */
 }
 
 .background-canvas {
@@ -26,6 +26,11 @@
   opacity: 0;
   transition: opacity 0.5s ease;
   transform: scale(1);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Estilo para centralizar o teclado */
@@ -50,6 +55,9 @@
   transition: all 0.5s ease;
   opacity: 1; /* Garante que está visível inicialmente */
   transform: translateY(0); /* Garante posição inicial */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .hero-title-central h1 {
@@ -63,6 +71,9 @@
   line-height: 1.1;
   letter-spacing: -0.02em;
   transition: all 0.5s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .hero-title-central h2 {
@@ -75,6 +86,9 @@
   margin-left: auto;
   margin-right: auto;
   transition: all 0.5s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .cta-button {
@@ -139,7 +153,7 @@
 .hero-title-central.fade-out {
   opacity: 0;
   transform: translateY(-100px) scale(0.8);
-  filter: blur(10px);
+  /* Removido blur para evitar desfoque */
 }
 
 /* Estados de animação para o canvas 3D */
@@ -251,12 +265,8 @@
 
 /* Efeitos especiais para o canvas 3D */
 .background-canvas {
-  filter: brightness(1.1) contrast(1.1);
+  /* Removido filtros para evitar desfoque */
   will-change: transform, opacity;
-}
-
-.background-canvas.active {
-  filter: brightness(1.2) contrast(1.2) saturate(1.1);
 }
 
 /* Efeitos de profundidade */
@@ -268,9 +278,9 @@
   transform-style: preserve-3d;
 }
 
-/* Efeitos de blur progressivo */
-.hero-title-central.blur-out {
+/* Efeitos de blur progressivo - REMOVIDO */
+/* .hero-title-central.blur-out {
   filter: blur(10px);
   opacity: 0;
   transform: translateY(-50px) scale(0.9);
-}
+} */
