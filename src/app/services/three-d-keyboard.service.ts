@@ -29,13 +29,13 @@ export class ThreeDKeyboardService implements OnDestroy {
 
   constructor(private ngZone: NgZone) {}
 
-  public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  public createScene(canvas: ElementRef<HTMLCanvasElement>, onBuild?: () => void): void {
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a192f, 0.01); // Adicionamos uma leve neblina para um efeito mais atmosférico
 
     // 2. CORREÇÃO DO CLIPPING: Ajustamos a câmara
-    this.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 1000);
-    this.camera.position.z = 30; // Afastámos ligeiramente a câmara para dar mais espaço
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+    this.camera.position.set(0, 0, 25); // Aproxima a câmera para melhor visualização
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas.nativeElement,
@@ -58,37 +58,59 @@ export class ThreeDKeyboardService implements OnDestroy {
       roughness: 0.4
     });
 
-  // Cria o grupo de teclas e aplica rotação de 45°
-  this.keyboardGroup = new THREE.Group();
-  this.createKeyboardLayout();
-  this.keyboardGroup.rotation.x = -Math.PI / 4; // Inclina 45° para "frente"
-  this.keyboardGroup.position.x = 13; // Move o teclado para a direita
-  this.scene.add(this.keyboardGroup);
+    // Cria o grupo de teclas e aplica rotação de 45°
+    this.keyboardGroup = new THREE.Group();
+    this.createKeyboardLayout();
+    this.keyboardGroup.rotation.x = -Math.PI / 6; // Reduz a inclinação para 30°
+    this.keyboardGroup.position.set(0, 0, 0); // Centraliza o teclado
+    this.scene.add(this.keyboardGroup);
 
-  this.animate();
+    this.animate();
+    if (onBuild) {
+      setTimeout(() => onBuild(), 300); // Pequeno delay para garantir renderização
+    }
+  }
+
+  // Anima montagem das teclas uma a uma
+  public animateKeyboardBuild(): void {
+    this.keys.forEach((key, i) => {
+      key.scale.set(0, 0, 0);
+      key.visible = true;
+    });
+    gsap.to(this.keys.map(k => k.scale), {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      stagger: 0.1, // Aumenta o stagger para 9 teclas
+      duration: 0.6,
+      ease: 'back.out(1.7)',
+      onStart: () => {
+        this.keys.forEach(k => k.visible = true);
+      }
+    });
   }
   private createKeyGeometry(): THREE.BufferGeometry {
     const shape = new THREE.Shape();
-    const size = 8; // tamanho
-    const radius = 0.3; // Arredondamento das teclas
-    shape.moveTo(-size / 6 + radius, -size / 6);
-    shape.lineTo(size / 6 - radius, -size / 6);
-    shape.quadraticCurveTo(size / 6, -size / 6, size / 6, -size / 6 + radius);
-    shape.lineTo(size / 6, size / 6 - radius);
-    shape.quadraticCurveTo(size / 6, size / 6, size / 6 - radius, size / 6);
-    shape.lineTo(-size / 6 + radius, size / 6);
-    shape.quadraticCurveTo(-size / 6, size / 6, -size / 6, size / 6 - radius);
-    shape.lineTo(-size / 6, -size / 6 + radius);
-    shape.quadraticCurveTo(-size / 6, -size / 6, -size / 6 + radius, -size / 6);
+    const size = 4.7; // Ligeiramente menor para um visual mais delicado
+    const radius = 0.3;
+    shape.moveTo(-size / 2 + radius, -size / 2);
+    shape.lineTo(size / 2 - radius, -size / 2);
+    shape.quadraticCurveTo(size / 2, -size / 2, size / 2, -size / 2 + radius);
+    shape.lineTo(size / 2, size / 2 - radius);
+    shape.quadraticCurveTo(size / 2, size / 2, size / 2 - radius, size / 2);
+    shape.lineTo(-size / 2 + radius, size / 2);
+    shape.quadraticCurveTo(-size / 2, size / 2, -size / 2, size / 2 - radius);
+    shape.lineTo(-size / 2, -size / 2 + radius);
+    shape.quadraticCurveTo(-size / 2, -size / 2, -size / 2 + radius, -size / 2);
 
     const extrudeSettings = {
-      steps: 5,
-      depth: 2.2, //profundidade das teclas 
+      steps: 1,
+      depth: 3,
       bevelEnabled: true,
       bevelThickness: 0.2,
       bevelSize: 0.1,
-      bevelOffset: 0.4,
-      bevelSegments: 10
+      bevelOffset: 0,
+      bevelSegments: 8
     };
 
     return new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -96,19 +118,18 @@ export class ThreeDKeyboardService implements OnDestroy {
   // 3. APARÊNCIA: RoundedBoxGeometry
   private createKeyboardLayout(): void {
     const keySize = 5; // Tamanho das teclas
-    // const keyDepth = 0.8; // Um pouco mais espessas que a última versão
-    const spacing = 0.8;
-    const numCols = 4;
-    const numRows = 3;
+    const spacing = 0.8; // Espaçamento entre teclas
+    const numCols = 3; // 3 colunas
+    const numRows = 3; // 3 linhas
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
         const key = new THREE.Mesh(this.keyGeometry, this.keyMaterial); // Usa a geometria e material partilhados
         key.position.x = (col - numCols / 2) * (keySize + spacing);
         key.position.y = (row - numRows / 2) * (keySize + spacing);
-        key.position.z = -1; // as teclas ligeiramente abaixo do plano da cena
+        key.position.z = 0; // Coloca as teclas no plano central
         key.rotation.z = Math.PI / 2; // Rotacionamos para a orientação correta
-        key.scale.set(0.9, 0.9, 0.9);
+        key.scale.set(1.0, 1.0, 1.0); // Escala normal para teclas maiores
         this.keys.push(key);
         this.keyboardGroup.add(key); // Adiciona ao grupo, não à cena
       }
@@ -119,7 +140,7 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.ngZone.runOutsideAngular(() => {
       const loop = () => {
         // Faz o teclado girar continuamente em torno do eixo Y
-        this.keyboardGroup.rotation.z += 0.005;
+        this.keyboardGroup.rotation.z += 0.003;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const intersects = this.raycaster.intersectObjects(this.keys);

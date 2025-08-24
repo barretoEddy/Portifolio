@@ -5,7 +5,44 @@
   background-color: var(--color-primary);
 }
 
+/* Otimizações de performance */
 .portfolio-content {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+.project-item {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+.project-image img {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Reduzir complexidade de animações */
+.project-item {
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden;
+}
+
+/* Otimizar carregamento de imagens */
+.project-image img {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  image-rendering: optimizeSpeed;
+}
+
+/* Reduzir repaints */
+.portfolio-content * {
+  transform: translateZ(0);
+}
+
+/* Melhorar performance de scroll */
+.portfolio-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
   text-align: center;
 }
 

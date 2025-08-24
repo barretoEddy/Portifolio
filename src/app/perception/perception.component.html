@@ -1,40 +1,42 @@
-<div class="portfolio-content container">
-  <h2 class="section-title">Meus Projetos</h2>
+<div class="portfolio-content container" #perceptionSection>
+  <h2 class="section-title" #perceptionTitle>Meus Projetos</h2>
 
   <div *ngIf="isLoading; else content" class="loading-state">
     <p>A carregar projetos...</p>
   </div>
 
   <ng-template #content>
-    @for (project of projects; track project._id; let i = $index) {
-      <div class="project-item" [class.text-right]="i % 2 !== 0">
+    <div #projectsContainer>
+      @for (project of projects; track project._id; let i = $index) {
+        <div class="project-item" [class.text-right]="i % 2 !== 0">
 
-        <div class="project-image">
-          <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
-            <img [src]="getProjectImageUrl(project.mainImage)" [alt]="project.title">
-          </a>
-        </div>
+          <div class="project-image">
+            <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
+              <img [src]="getProjectImageUrl(project.mainImage)" [alt]="project.title">
+            </a>
+          </div>
 
-        <div class="project-info">
-          <h3 class="project-title">
-            <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">{{ project.title }}</a>
-          </h3>
-          <div class="project-description">
-            <p>{{ project.description }}</p>
-          </div>
-          <ul class="project-tech-list">
-            @for (tech of project.technologies; track tech) {
-              <li>{{ tech }}</li>
-            }
-          </ul>
-          <div class="project-links">
-            <a [href]="project.repoUrl" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-              </a>
-            <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer" aria-label="External Link">
-              </a>
+          <div class="project-info">
+            <h3 class="project-title">
+              <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">{{ project.title }}</a>
+            </h3>
+            <div class="project-description">
+              <p>{{ project.description }}</p>
+            </div>
+            <ul class="project-tech-list">
+              @for (tech of project.technologies; track tech) {
+                <li>{{ tech }}</li>
+              }
+            </ul>
+            <div class="project-links">
+              <a [href]="project.repoUrl" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                </a>
+              <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer" aria-label="External Link">
+                </a>
+            </div>
           </div>
         </div>
-      </div>
-    }
+      }
+    </div>
   </ng-template>
 </div>

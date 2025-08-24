@@ -27,6 +27,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit(): void {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Aguarda um pouco mais para garantir que todos os componentes estejam renderizados
     setTimeout(() => {
       const main = this.elementRef.nativeElement;
       this.ctx = gsap.context(() => {
@@ -35,7 +38,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         this.setupStaticAnimation('#maintenance');
         this.setupStaticAnimation('#conclusion');
       }, main);
-    }, 500); // Um timeout ligeiramente maior para garantir tudo
+    }, 1000); // Aumentado de 500ms para 1000ms para garantir renderização completa
   }
 
   public onPerceptionRendered(): void {
@@ -53,8 +56,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       gsap.from(children, {
         y: 50,
         opacity: 0,
-        stagger: 0.15,
-        duration: 0.8,
+        stagger: 0.1, // Reduzido de 0.15 para 0.1 para animação mais rápida
+        duration: 0.6, // Reduzido de 0.8 para 0.6
         ease: 'power3.out',
         scrollTrigger: {
           trigger: section,
@@ -81,9 +84,20 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    tl.from(title, { opacity: 0, y: 50, ease: 'power2.out' });
+    tl.from(title, {
+      opacity: 0,
+      y: 50,
+      ease: 'power2.out',
+      duration: 0.8 // Reduzido para animação mais rápida
+    });
+
     projectItems.forEach((item: any, index) => {
-      tl.from(item, { autoAlpha: 0, y: 100, ease: 'power3.out' }, '-=0.7');
+      tl.from(item, {
+        autoAlpha: 0,
+        y: 80, // Reduzido de 100 para 80
+        ease: 'power3.out',
+        duration: 0.6 // Reduzido de 0.8 para 0.6
+      }, '-=0.5'); // Reduzido o overlap
     });
   }
 

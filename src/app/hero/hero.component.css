@@ -1,43 +1,180 @@
+
 :host {
   display: block;
+  width: 100vw;
+  min-height: 100vh;
+  background-color: var(--color-primary);
+}
+
+.hero-section {
   position: relative;
   height: 100vh;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #1a365d 100%);
 }
 
 .background-canvas {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: scale(1);
 }
 
-/* NOVA ARQUITETURA DE LAYOUT */
-.hero-content {
-  /* Posicionamos o conteúdo no canto inferior esquerdo */
-  position: absolute;
+/* Estilo para centralizar o teclado */
+.background-canvas.centered {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(1.2) !important;
+  width: 100%;
+  height: 100%;
+  display: block !important;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hero-title-central {
+  position: relative;
   z-index: 2;
-  bottom: 10vh;
-  left: 10vw;
-  
-  /* Definimos uma largura máxima para o texto */
-  max-width: 500px;
-
-  /* Efeito de "vidro fosco" para legibilidade */
-  padding: 2rem;
-  background-color: rgba(17, 34, 64, 0.5); /* Cor secundária com transparência */
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(100, 255, 218, 0.2); /* Borda subtil com a cor de destaque */
-  border-radius: 8px;
-
-  /* Animação de entrada para o painel */
-  animation: fadeInPanel 1.5s ease-out 0.5s;
-  animation-fill-mode: backwards;
+  text-align: center;
+  color: #e6f1ff;
+  max-width: 800px;
+  padding: 0 2rem;
+  transition: all 0.5s ease;
+  opacity: 1; /* Garante que está visível inicialmente */
+  transform: translateY(0); /* Garante posição inicial */
 }
 
-@keyframes fadeInPanel {
+.hero-title-central h1 {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #64ffda 0%, #8892b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  transition: all 0.5s ease;
+}
+
+.hero-title-central h2 {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: #8892b0;
+  line-height: 1.6;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.5s ease;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #64ffda 0%, #4fd1c7 100%);
+  color: #0a192f;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(100, 255, 218, 0.4);
+  border-color: #64ffda;
+}
+
+/* Estilos para animações de texto */
+.text-reveal-char {
+  display: inline-block;
+  opacity: 1; /* Mudado de 0 para 1 para que apareça inicialmente */
+  transform: translateY(0); /* Mudado de translateY(100px) para translateY(0) */
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.text-reveal-char.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efeitos de hover para caracteres */
+.hero-title-central h1 .text-reveal-char:hover {
+  color: #64ffda;
+  transform: translateY(-5px) scale(1.1);
+  transition: all 0.3s ease;
+}
+
+/* Estados de animação para o título */
+.hero-title-central.fade-out {
+  opacity: 0;
+  transform: translateY(-100px) scale(0.8);
+  filter: blur(10px);
+}
+
+/* Estados de animação para o canvas 3D */
+.background-canvas.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Efeitos de transição suave */
+.hero-section * {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .hero-title-central {
+    padding: 0 1rem;
+  }
+
+  .hero-title-central h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .hero-title-central h2 {
+    font-size: clamp(0.9rem, 4vw, 1.2rem);
+  }
+
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Animações de entrada */
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -48,53 +185,92 @@
   }
 }
 
-/* Ajustes de tipografia para o novo layout */
-.hero-content h1 {
-  font-size: 3.5rem; /* Ligeiramente menor para caber melhor no painel */
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 0.75rem;
-  text-shadow: none; /* Removemos a sombra de néon, o painel já dá destaque */
-}
-
-.hero-content h2 {
-  font-size: 1.5rem;
-  font-weight: 300;
-  color: var(--color-accent); /* Usamos a cor de destaque aqui */
-  margin-bottom: 1.5rem;
-  text-shadow: none;
-}
-
-.cta-button {
-  padding: 10px 20px;
-  background-color: var(--color-accent);
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 600;
-  border-radius: 5px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.cta-button:hover {
-  background-color: hsl(168, 100%, 65%);
-  transform: translateY(-3px);
-}
-
-/* Ajustes para telas menores */
-@media (max-width: 768px) {
-  .hero-content {
-    left: 5vw;
-    right: 5vw;
-    bottom: 5vh;
-    max-width: none;
-    padding: 1.5rem;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
   }
-
-  .hero-content h1 {
-    font-size: 2.5rem;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
+}
 
-  .hero-content h2 {
-    font-size: 1.2rem;
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
+  to {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.8);
+  }
+}
+
+@keyframes canvasAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Efeitos de partículas de fundo */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(136, 146, 176, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(26, 54, 93, 0.1) 0%, transparent 50%);
+  z-index: 0;
+  animation: backgroundShift 20s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(-10px) translateY(-10px);
+  }
+  50% {
+    transform: translateX(10px) translateY(-5px);
+  }
+  75% {
+    transform: translateX(-5px) translateY(10px);
+  }
+}
+
+/* Efeitos especiais para o canvas 3D */
+.background-canvas {
+  filter: brightness(1.1) contrast(1.1);
+  will-change: transform, opacity;
+}
+
+.background-canvas.active {
+  filter: brightness(1.2) contrast(1.2) saturate(1.1);
+}
+
+/* Efeitos de profundidade */
+.hero-section {
+  perspective: 1000px;
+}
+
+.hero-title-central {
+  transform-style: preserve-3d;
+}
+
+/* Efeitos de blur progressivo */
+.hero-title-central.blur-out {
+  filter: blur(10px);
+  opacity: 0;
+  transform: translateY(-50px) scale(0.9);
 }
