@@ -6,6 +6,11 @@
 
 .services-content {
   text-align: center;
+  overflow: hidden; /* evita scroll interno enquanto o container é deslocado */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* centraliza verticalmente quando pinado */
+  padding: 60px 0; /* espaço vertical maior para ficar no centro */
 }
 
 .section-title {
@@ -16,10 +21,16 @@
 }
 
 .services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: row;
   gap: 25px;
   text-align: left;
+  align-items: stretch;
+  /* garante que os cards fiquem em uma única linha e possam ser deslocados horizontalmente */
+  white-space: nowrap;
+  width: max-content; /* permite que o container tenha largura do conteúdo para o translate funcionar */
+  align-items: center;
+  justify-content: flex-start; /* items alinhados à esquerda; deslocamento revela da direita para a esquerda */
 }
 
 .service-card {
@@ -28,6 +39,11 @@
   border-radius: 5px;
   transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
   border: 1px solid transparent;
+  min-width: 320px; /* largura mínima para cada card na linha horizontal */
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: top;
+  z-index: 2; /* garante que cards fiquem sobre o background, mas abaixo do header */
 }
 
 .service-card:hover {

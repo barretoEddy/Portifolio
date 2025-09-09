@@ -16,6 +16,11 @@ main > section {
 #hero { z-index: 5; }
 #cabin { z-index: 4; }
 #maintenance { z-index: 3; }
+
+/* Permite overflow visível para o elemento pinado (evita que ancestors com overflow:hidden cortem o pin) */
+#maintenance {
+  overflow: visible;
+}
 #perception { z-index: 2; }
 #conclusion {
   z-index: 1;
