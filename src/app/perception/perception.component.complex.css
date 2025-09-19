@@ -1,0 +1,505 @@
+:host {
+  display: block; /* Mudado de flex para block */
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-primary);
+  perspective: 1000px; /* Para efeitos 3D */
+}
+
+/* Melhorar visibilidade do portfolio-content */
+.portfolio-content {
+  will-change: transform, opacity;
+  contain: layout style paint;
+  transform-style: preserve-3d; /* Para transformações 3D */
+  padding: 80px 20px;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  color: var(--color-accent);
+  margin-bottom: 50px;
+  text-align: center;
+  opacity: 1; /* Garante visibilidade */
+}
+
+.project-item {
+  will-change: transform, opacity;
+  contain: layout style paint;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: center;
+  margin-bottom: 80px;
+  opacity: 1; /* Garante visibilidade inicial */
+}
+
+/* Remover otimizações que podem interferir */
+.project-image img {
+  will-change: transform;
+}
+
+/* Estilos para a imagem com efeitos avançados */
+.project-image {
+  grid-column: 1 / 8;
+  grid-row: 1 / -1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-item.text-right .project-image {
+  grid-column: 6 / -1;
+}
+
+.project-img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Glow effect */
+.image-glow {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, var(--color-accent), #00ff88, var(--color-accent));
+  border-radius: 16px;
+  opacity: 0;
+  z-index: -1;
+  filter: blur(20px);
+  transition: all 0.4s ease;
+}
+
+/* Overlay informativo */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(0, 0, 0, 0.8) 0%, 
+    rgba(20, 50, 80, 0.9) 50%, 
+    rgba(0, 0, 0, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+
+.overlay-content {
+  text-align: center;
+  color: white;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-overlay:hover .overlay-content {
+  transform: translateY(0);
+}
+
+.overlay-content h4 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: var(--color-accent);
+}
+
+.overlay-content p {
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  opacity: 0.8;
+}
+
+.tech-preview {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tech-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Estilos para o conteúdo com micro-interactions */
+.project-info {
+  grid-column: 7 / -1;
+  grid-row: 1 / -1;
+  position: relative;
+  z-index: 2;
+  text-align: right;
+}
+
+.project-item.text-right .project-info {
+  grid-column: 1 / 7;
+  text-align: left;
+}
+
+/* Título com efeitos avançados */
+.project-title {
+  margin-bottom: 20px;
+}
+
+.title-link {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.title-text {
+  font-size: 1.8rem;
+  color: var(--color-text);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+.title-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, var(--color-accent), #00ff88);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.title-link:hover .title-text {
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.title-link:hover .title-decoration {
+  width: 100%;
+}
+
+/* Descrição com gradiente */
+.project-description {
+  background: linear-gradient(135deg, 
+    var(--color-secondary) 0%, 
+    rgba(30, 60, 100, 0.8) 100%);
+  color: var(--color-text-light);
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.description-gradient {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent);
+  transition: left 0.6s ease;
+}
+
+.project-description:hover .description-gradient {
+  left: 100%;
+}
+
+.project-description:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.project-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 15px;
+  list-style: none;
+  margin: 20px 0;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.project-item.text-right .project-tech-list {
+  justify-content: flex-start;
+}
+
+/* Estilos modernos para tech items */
+.tech-item {
+  background: linear-gradient(135deg, 
+    rgba(100, 255, 218, 0.1), 
+    rgba(100, 255, 218, 0.05));
+  color: var(--color-accent);
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  font-size: 0.8rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.tech-item:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(100, 255, 218, 0.2), 
+    transparent);
+  transition: left 0.5s ease;
+}
+
+.tech-item:hover:before {
+  left: 100%;
+}
+
+.tech-item:hover {
+  background: rgba(100, 255, 218, 0.2);
+  border-color: var(--color-accent);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 15px rgba(100, 255, 218, 0.3);
+}
+
+.project-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.project-item.text-right .project-links {
+  justify-content: flex-start;
+}
+
+/* Links modernos com efeitos de ripple */
+.link-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, 
+    rgba(100, 255, 218, 0.1), 
+    rgba(100, 255, 218, 0.05));
+  color: var(--color-accent);
+  text-decoration: none;
+  border-radius: 25px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.link-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(100, 255, 218, 0.4);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.link-button:hover {
+  background: rgba(100, 255, 218, 0.2);
+  border-color: var(--color-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(100, 255, 218, 0.3);
+}
+
+.link-button:active {
+  transform: translateY(-1px);
+}
+
+.link-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.link-button:hover .link-icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.github-link:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1), 
+    rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.live-link:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 100, 100, 0.1), 
+    rgba(255, 100, 100, 0.05));
+  border-color: rgba(255, 100, 100, 0.3);
+  color: #ff6464;
+}
+
+/* Remover estilos antigos */
+.project-links a {
+  color: var(--color-text-light);
+  transition: color 0.3s ease;
+}
+
+.project-links a:hover {
+  color: var(--color-accent);
+}
+
+.project-links svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .project-image, .project-item.text-right .project-image,
+  .project-info, .project-item.text-right .project-info {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .project-info {
+    padding: 20px;
+    background-color: rgba(17, 34, 64, 0.8);
+  }
+  .project-tech-list, .project-links {
+    justify-content: flex-start;
+  }
+}
+
+/* Loading state moderno */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+.loading-container {
+  text-align: center;
+  color: var(--color-text);
+}
+
+.loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 30px;
+}
+
+.spinner-ring {
+  position: absolute;
+  border: 4px solid transparent;
+  border-top: 4px solid var(--color-accent);
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+.spinner-ring:nth-child(1) {
+  width: 60px;
+  height: 60px;
+  top: 10px;
+  left: 10px;
+  animation-delay: 0s;
+}
+
+.spinner-ring:nth-child(2) {
+  width: 40px;
+  height: 40px;
+  top: 20px;
+  left: 20px;
+  animation-delay: -0.4s;
+  border-top-color: #00ff88;
+}
+
+.spinner-ring:nth-child(3) {
+  width: 20px;
+  height: 20px;
+  top: 30px;
+  left: 30px;
+  animation-delay: -0.8s;
+  border-top-color: #ff6464;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.loading-progress {
+  width: 200px;
+  height: 4px;
+  background: rgba(100, 255, 218, 0.2);
+  border-radius: 2px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), #00ff88);
+  border-radius: 2px;
+  animation: loading-progress 2s ease-in-out infinite;
+}
+
+@keyframes loading-progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}

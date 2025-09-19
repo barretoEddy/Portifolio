@@ -1,15 +1,13 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ProgressiveAnimationService } from '../services/progressive-animation.service';
-import { TextRevealDirective } from '../directives/text-reveal.directive';
-import { ParallaxDirective } from '../directives/parallax.directive';
 
 @Component({
   selector: 'app-conclusion',
   standalone: true,
-  imports: [CommonModule, TextRevealDirective, ParallaxDirective],
+  imports: [CommonModule, FormsModule],
   templateUrl: './conclusion.component.html',
   styleUrl: './conclusion.component.css'
 })
@@ -20,185 +18,153 @@ export class ConclusionComponent implements AfterViewInit, OnDestroy {
   private conclusionTitleRef!: ElementRef<HTMLHeadingElement>;
   @ViewChild('conclusionText', { static: true, read: ElementRef })
   private conclusionTextRef!: ElementRef<HTMLParagraphElement>;
-  @ViewChild('conclusionButton', { static: true, read: ElementRef })
-  private conclusionButtonRef!: ElementRef<HTMLAnchorElement>;
 
-  private progressiveAnimationService = inject(ProgressiveAnimationService);
   private animationTimeline?: gsap.core.Timeline;
+
+  // Propriedades do formulário
+  formData = {
+    name: '',
+    email: '',
+    message: ''
+  };
+
+  isSubmitting = false;
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
-    this.setupConclusionAnimations();
+    setTimeout(() => {
+      this.setupAnimations();
+    }, 100);
   }
 
-  private setupConclusionAnimations(): void {
-    // Cria timeline principal para a seção conclusion
-    this.animationTimeline = this.progressiveAnimationService.createProgressiveAnimation(
-      this.conclusionSectionRef,
-      'conclusion-main',
-      {
-        start: 'top 80%',
-        end: 'bottom 20%',
-        scrub: 1,
-        pin: false,
-        onUpdate: (progress) => {
-          this.handleScrollProgress(progress);
+  private setupAnimations(): void {
+    if (!this.conclusionSectionRef?.nativeElement) return;
+
+    // Animação do título
+    if (this.conclusionTitleRef?.nativeElement) {
+      gsap.fromTo(this.conclusionTitleRef.nativeElement,
+        { opacity: 0, y: 50, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: this.conclusionTitleRef.nativeElement,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse"
+          }
         }
-      }
-    );
-
-    // Adiciona animações de texto com reveal progressivo
-    this.addTextAnimations();
-
-    // Adiciona animação do botão
-    this.addButtonAnimation();
-
-    // Adiciona efeitos de parallax
-    this.addParallaxEffects();
-
-    // Adiciona animações especiais de conclusão
-    this.addSpecialEffects();
-  }
-
-  private addTextAnimations(): void {
-    if (!this.animationTimeline) return;
-
-    // Animação do título principal
-    this.progressiveAnimationService.addTextRevealAnimation(
-      this.animationTimeline,
-      this.conclusionTitleRef,
-      {
-        duration: 1.2,
-        stagger: 0.08,
-        ease: 'power4.out',
-        from: 'bottom',
-        delay: 0.3
-      }
-    );
-
-    // Animação do texto de contato
-    this.progressiveAnimationService.addFadeScaleAnimation(
-      this.animationTimeline,
-      this.conclusionTextRef,
-      {
-        duration: 1,
-        ease: 'power3.out',
-        scale: 0.9,
-        delay: 0.8
-      }
-    );
-  }
-
-  private addButtonAnimation(): void {
-    if (!this.animationTimeline) return;
-
-    // Animação de entrada do botão
-    this.progressiveAnimationService.addFadeScaleAnimation(
-      this.animationTimeline,
-      this.conclusionButtonRef,
-      {
-        duration: 0.8,
-        ease: 'back.out(1.7)',
-        scale: 0.5,
-        delay: 1.2
-      }
-    );
-
-    // Adiciona animação de pulso contínua
-    this.animationTimeline.to(this.conclusionButtonRef.nativeElement, {
-      scale: 1.05,
-      duration: 2,
-      ease: 'power2.inOut',
-      yoyo: true,
-      repeat: -1,
-      delay: 2
-    });
-
-    // Adiciona animação de brilho
-    this.animationTimeline.to(this.conclusionButtonRef.nativeElement, {
-      boxShadow: '0 0 30px rgba(100, 255, 218, 0.6)',
-      duration: 3,
-      ease: 'power2.inOut',
-      yoyo: true,
-      repeat: -1,
-      delay: 3
-    });
-  }
-
-  private addParallaxEffects(): void {
-    if (!this.animationTimeline) return;
-
-    // Efeito parallax no título
-    this.progressiveAnimationService.addParallaxAnimation(
-      this.animationTimeline,
-      this.conclusionTitleRef,
-      {
-        y: -40,
-        scale: 1.03,
-        ease: 'none'
-      }
-    );
-
-    // Efeito parallax no texto
-    this.progressiveAnimationService.addParallaxAnimation(
-      this.animationTimeline,
-      this.conclusionTextRef,
-      {
-        y: 20,
-        scale: 1.01,
-        ease: 'none'
-      }
-    );
-  }
-
-  private addSpecialEffects(): void {
-    if (!this.animationTimeline) return;
-
-    // Adiciona rotação 3D sutil ao botão
-    this.progressiveAnimationService.add3DRotationAnimation(
-      this.animationTimeline,
-      this.conclusionButtonRef,
-      {
-        rotationY: 5,
-        rotationX: 2,
-        duration: 2,
-        ease: 'power2.out',
-        transformOrigin: 'center center'
-      }
-    );
-
-    // Adiciona animação de cor progressiva
-    this.progressiveAnimationService.addColorAnimation(
-      this.animationTimeline,
-      this.conclusionButtonRef,
-      {
-        color: '#ffffff',
-        backgroundColor: '#64ffda',
-        duration: 1.5,
-        ease: 'power2.out'
-      }
-    );
-  }
-
-  private handleScrollProgress(progress: number): void {
-    // Ajusta a opacidade baseada no progresso
-    if (progress > 0.8) {
-      const opacity = Math.max(0, 1 - (progress - 0.8) * 5);
-      this.conclusionSectionRef.nativeElement.style.opacity = opacity.toString();
-    } else {
-      this.conclusionSectionRef.nativeElement.style.opacity = '1';
+      );
     }
 
-    // Adiciona efeito de blur progressivo
-    if (progress > 0.9) {
-      const blur = (progress - 0.9) * 10;
-      this.conclusionSectionRef.nativeElement.style.filter = `blur(${blur}px)`;
-    } else {
-      this.conclusionSectionRef.nativeElement.style.filter = 'blur(0px)';
+    // Animação do texto
+    if (this.conclusionTextRef?.nativeElement) {
+      gsap.fromTo(this.conclusionTextRef.nativeElement,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          delay: 0.3,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: this.conclusionTextRef.nativeElement,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    }
+
+    // Animação dos métodos de contato
+    const contactItems = this.conclusionSectionRef.nativeElement.querySelectorAll('.contact-item');
+    if (contactItems.length > 0) {
+      gsap.fromTo(contactItems,
+        { opacity: 0, y: 40, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.2,
+          delay: 0.5,
+          ease: "back.out(1.7)",
+          scrollTrigger: {
+            trigger: contactItems[0],
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    }
+
+    // Animação do card principal
+    const contactCard = this.conclusionSectionRef.nativeElement.querySelector('.contact-card');
+    if (contactCard) {
+      gsap.fromTo(contactCard,
+        { opacity: 0, scale: 0.95, y: 40 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 1.5,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: contactCard,
+            start: "top 85%",
+            end: "bottom 15%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
     }
   }
 
   ngOnDestroy(): void {
-    this.progressiveAnimationService.clearAnimation('conclusion-main');
+    if (this.animationTimeline) {
+      this.animationTimeline.kill();
+    }
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+  }
+
+  onSubmitForm(): void {
+    if (this.isSubmitting) return;
+
+    // Validação básica
+    if (!this.formData.name.trim() ||
+        !this.formData.email.trim() ||
+        !this.formData.message.trim()) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
+
+    // Validação de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.formData.email)) {
+      alert('Por favor, insira um email válido.');
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    // Simular envio (você pode integrar com um serviço real posteriormente)
+    setTimeout(() => {
+      alert('Mensagem enviada com sucesso! Obrigado pelo contato.');
+      this.resetForm();
+      this.isSubmitting = false;
+    }, 2000);
+  }
+
+  private resetForm(): void {
+    this.formData = {
+      name: '',
+      email: '',
+      message: ''
+    };
   }
 }

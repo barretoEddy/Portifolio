@@ -41,30 +41,22 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   async fetchProjects(): Promise<void> {
     this.isLoading = true;
     try {
-      console.log('Tentando carregar projetos do Sanity...');
       const projects = await this.sanityService.getProjects();
-      console.log('Projetos carregados do Sanity:', projects);
-
-      if (projects && projects.length > 0) {
-        this.projects = projects;
-        console.log('Usando projetos do Sanity');
-      } else {
-        this.projects = this.getMockProjects();
-        console.log('Nenhum projeto encontrado no Sanity, usando dados mock');
-      }
+      this.projects = projects || this.getMockProjects();
     } catch (error) {
       console.error('Erro ao buscar projetos:', error);
       this.projects = this.getMockProjects();
-      console.log('Erro no Sanity, usando dados mock');
     } finally {
       this.isLoading = false;
-
+      
       // Configurar animações após carregar conteúdo
       setTimeout(() => {
         this.setupAnimations();
       }, 100);
     }
-  }  private getMockProjects(): Project[] {
+  }
+
+  private getMockProjects(): Project[] {
     return [
       {
         _id: 'mock-1',
@@ -76,7 +68,7 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
         liveUrl: '#',
         mainImage: {
           asset: {
-            url: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop'
+            url: '/img/perfil.jpg'
           }
         }
       },
@@ -90,7 +82,7 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
         liveUrl: '#',
         mainImage: {
           asset: {
-            url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop'
+            url: '/img/perfil.jpg'
           }
         }
       },
@@ -104,7 +96,7 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
         liveUrl: '#',
         mainImage: {
           asset: {
-            url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&h=300&fit=crop'
+            url: '/img/perfil.jpg'
           }
         }
       }
@@ -115,33 +107,22 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (image && image.asset && image.asset.url) {
       return image.asset.url;
     }
-    if (image && image.asset && image.asset._ref) {
-      return this.sanityService.getImageUrl(image).url();
-    }
-    if (image) {
-      try {
-        return this.sanityService.getImageUrl(image).url();
-      } catch (error) {
-        console.warn('Erro ao processar imagem:', error);
-      }
-    }
-    // Fallback para uma imagem placeholder mais confiável
-    return 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=500&h=300&fit=crop';
+    return '/img/perfil.jpg';
   }
 
   private setupAnimations(): void {
     if (this.animationSetup) return;
-
+    
     this.animationSetup = true;
     this.contentRendered.emit();
 
     // Animação do título
     if (this.perceptionTitleRef?.nativeElement) {
-      gsap.fromTo(this.perceptionTitleRef.nativeElement,
+      gsap.fromTo(this.perceptionTitleRef.nativeElement, 
         { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
+        { 
+          opacity: 1, 
+          y: 0, 
           duration: 1,
           ease: "power2.out",
           scrollTrigger: {
@@ -157,11 +138,11 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
     // Animação dos projetos
     const projectItems = this.projectsContainerRef.nativeElement.querySelectorAll('.project-item');
     if (projectItems.length > 0) {
-      gsap.fromTo(projectItems,
+      gsap.fromTo(projectItems, 
         { opacity: 0, y: 80 },
-        {
-          opacity: 1,
-          y: 0,
+        { 
+          opacity: 1, 
+          y: 0, 
           duration: 1,
           stagger: 0.3,
           ease: "power2.out",

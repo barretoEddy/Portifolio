@@ -69,7 +69,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       {
         display: 'block',
         opacity: 1,
-        scale: 1.2,
+        scale: 1.0, // Reduzindo de 1.2 para 1.0 para não ultrapassar a div
         duration: 1.5, // Duração relativa
         ease: 'power3.out',
         onStart: () => this.buildKeyboard(), // Chama a construção do teclado

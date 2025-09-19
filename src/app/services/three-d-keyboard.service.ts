@@ -35,7 +35,7 @@ export class ThreeDKeyboardService implements OnDestroy {
 
     // 2. CORREÇÃO DO CLIPPING: Ajustamos a câmara
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-    this.camera.position.set(0, 0, 25); // Aproxima a câmera para melhor visualização
+    this.camera.position.set(0, 0, 20); // Reduzindo de 25 para 20 para aproximar o teclado menor
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas.nativeElement,
@@ -83,9 +83,9 @@ export class ThreeDKeyboardService implements OnDestroy {
       key.visible = true;
     });
     gsap.to(this.keys.map(k => k.scale), {
-      x: 1.0,
-      y: 1.0,
-      z: 1.0,
+      x: 0.8,
+      y: 0.8,
+      z: 0.8,
       stagger: 0.1, // Aumenta o stagger para 9 teclas
       duration: 0.6,
       ease: 'back.out(1.7)',
@@ -96,8 +96,8 @@ export class ThreeDKeyboardService implements OnDestroy {
   }
   private createKeyGeometry(): THREE.BufferGeometry {
     const shape = new THREE.Shape();
-    const size = 4.7; // Ligeiramente menor para um visual mais delicado
-    const radius = 0.3;
+    const size = 3.5; // Reduzindo de 4.7 para 3.5 para diminuir o tamanho geral
+    const radius = 0.2; // Reduzindo o raio também
     shape.moveTo(-size / 2 + radius, -size / 2);
     shape.lineTo(size / 2 - radius, -size / 2);
     shape.quadraticCurveTo(size / 2, -size / 2, size / 2, -size / 2 + radius);
@@ -122,8 +122,8 @@ export class ThreeDKeyboardService implements OnDestroy {
   }
   // 3. APARÊNCIA: RoundedBoxGeometry
   private createKeyboardLayout(): void {
-    const keySize = 5; // Tamanho das teclas
-    const spacing = 0.8; // Espaçamento entre teclas
+    const keySize = 3.8; // Reduzindo de 5 para 3.8
+    const spacing = 0.6; // Reduzindo espaçamento de 0.8 para 0.6
     const numCols = 3; // 3 colunas
     const numRows = 3; // 3 linhas
 
@@ -134,7 +134,7 @@ export class ThreeDKeyboardService implements OnDestroy {
         key.position.y = (row - numRows / 2) * (keySize + spacing);
         key.position.z = 0; // Coloca as teclas no plano central
         key.rotation.z = Math.PI / 2; // Rotacionamos para a orientação correta
-        key.scale.set(1.0, 1.0, 1.0); // Escala normal para teclas maiores
+        key.scale.set(0.8, 0.8, 0.8); // Reduzindo escala de 1.0 para 0.8
         this.keys.push(key);
         this.keyboardGroup.add(key); // Adiciona ao grupo, não à cena
       }
