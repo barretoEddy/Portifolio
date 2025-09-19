@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, inject, Hos
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CommonModule } from '@angular/common';
-import { ThreeDKeyboardService } from '../services/three-d-keyboard.service';
+import { ThreeDKeyboardNewService } from '../services/three-d-keyboard-new.service';
 
 @Component({
   selector: 'app-hero',
@@ -19,13 +19,18 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   @ViewChild('heroSection', { static: true, read: ElementRef })
   private heroSectionRef!: ElementRef<HTMLDivElement>;
 
-  private threeDService = inject(ThreeDKeyboardService);
+  private threeDService = inject(ThreeDKeyboardNewService);
   private keyboardBuilt = false;
   private tl: gsap.core.Timeline | null = null;
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
-    this.setupHeroAnimation();
+
+    // Testar diretamente sem scroll trigger
+    console.log('🚀 ngAfterViewInit - iniciando teclado diretamente');
+    this.buildKeyboard();
+
+    // this.setupHeroAnimation();
   }
 
   private setupHeroAnimation(): void {
@@ -72,17 +77,18 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
         scale: 1.0, // Reduzindo de 1.2 para 1.0 para não ultrapassar a div
         duration: 1.5, // Duração relativa
         ease: 'power3.out',
-        onStart: () => this.buildKeyboard(), // Chama a construção do teclado
+        onStart: () => {
+          // Executar buildKeyboard de forma assíncrona sem bloquear GSAP
+          this.buildKeyboard();
+        },
       },
       0.5 // Inicia um pouco depois do título começar a sumir
     );
   }
 
-  private buildKeyboard(): void {
+  private async buildKeyboard(): Promise<void> {
     if (!this.keyboardBuilt) {
-      this.threeDService.createScene(this.canvasRef, () => {
-        this.threeDService.animateKeyboardBuild();
-      });
+      await this.threeDService.createScene(this.canvasRef);
       this.keyboardBuilt = true;
     }
   }

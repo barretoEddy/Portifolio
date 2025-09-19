@@ -1,31 +1,20 @@
 import { Injectable, ElementRef, NgZone, OnDestroy } from '@angular/core';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
-// 1. Re-importamos a nossa geometria de cantos arredondados
-import { RoundedBoxGeometry } from './three-addons/RoundedBoxGeometry';
 
 @Injectable({
   providedIn: 'root'
 })
-
-export class ThreeDKeyboardService implements OnDestroy {
+export class ThreeDKeyboardNewService implements OnDestroy {
   private camera!: THREE.PerspectiveCamera;
   private scene!: THREE.Scene;
   private renderer!: THREE.WebGLRenderer;
   private keys: THREE.Mesh[] = [];
-  private keyboardGroup!: THREE.Group; // Novo grupo para as teclas
+  private keyboardGroup!: THREE.Group;
   private mouse = new THREE.Vector2(-10, -10);
   private raycaster = new THREE.Raycaster();
-  private waveCenter = new THREE.Vector3(999, 999, 999); // Inicia o centro da onda longe
-
+  private waveCenter = new THREE.Vector3(999, 999, 999);
   private animationFrameId?: number;
-  private baseColor = new THREE.Color(0x8892b0);
-  private hoverColor = new THREE.Color(0x64ffda);
-
-  // Geometria e Material partilhados para performance
-  private keyGeometry!: THREE.BufferGeometry;
-  private keyMaterial!: THREE.MeshStandardMaterial;
-  private techMaterials: THREE.MeshStandardMaterial[] = [];
 
   constructor(private ngZone: NgZone) {}
 
@@ -111,7 +100,7 @@ export class ThreeDKeyboardService implements OnDestroy {
     ];
   }
 
-  // Criar material com textura SVG melhorado
+  // Criar material com ícones SVG reais
   private async createSVGMaterial(techData: any): Promise<THREE.MeshStandardMaterial> {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
@@ -144,7 +133,7 @@ export class ThreeDKeyboardService implements OnDestroy {
         // Desenhar ícone centralizado
         const iconSize = 120;
         const x = (256 - iconSize) / 2;
-        const y = (256 - iconSize) / 2 - 20; // Slightly up
+        const y = (256 - iconSize) / 2 - 20;
 
         ctx.drawImage(img, x, y, iconSize, iconSize);
 
@@ -197,7 +186,6 @@ export class ThreeDKeyboardService implements OnDestroy {
 
   // Método fallback para criar textura com texto
   private createFallbackTexture(ctx: CanvasRenderingContext2D, techData: any): void {
-    // Ícone de texto como backup
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
@@ -205,7 +193,6 @@ export class ThreeDKeyboardService implements OnDestroy {
     ctx.shadowBlur = 6;
     ctx.fillText(this.getTechIcon(techData.name), 128, 140);
 
-    // Nome da tecnologia
     ctx.fillStyle = 'white';
     ctx.font = 'bold 18px Arial';
     ctx.shadowBlur = 4;
@@ -246,17 +233,16 @@ export class ThreeDKeyboardService implements OnDestroy {
     return icons[techName] || techName.charAt(0);
   }
 
+  // Criar cena 3D principal
   public async createScene(canvas: ElementRef<HTMLCanvasElement>, onBuild?: () => void): Promise<void> {
-    console.log('🚀 Iniciando createScene...');
+    console.log('🚀 Iniciando createScene com ícones SVG...');
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x0a192f, 0.01);
-    console.log('🌟 Scene criada');
+    this.scene.fog = new THREE.Fog(0x0a192f, 20, 100);
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-    this.camera.position.set(0, 3, 18); // Posição ajustada para melhor ângulo
+    this.camera.position.set(0, 3, 18);
     this.camera.lookAt(0, 0, 0);
-    console.log('📹 Camera posicionada para visualização otimizada dos cubos');
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas.nativeElement,
@@ -269,134 +255,66 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NoToneMapping;
-    console.log('🎨 Renderer criado:', this.renderer.domElement);
 
     // Iluminação otimizada para cubos 3D
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // Mais luz ambiente
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight);
 
-    // Luz principal frontal
     const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
     mainLight.position.set(0, 15, 30);
     mainLight.castShadow = true;
     this.scene.add(mainLight);
 
-    // Luz de preenchimento lateral
     const fillLight = new THREE.DirectionalLight(0x64ffda, 0.3);
     fillLight.position.set(-15, 5, 10);
     this.scene.add(fillLight);
 
-    // Luz de destaque superior
     const topLight = new THREE.DirectionalLight(0xffffff, 0.4);
     topLight.position.set(0, 30, 0);
     this.scene.add(topLight);
 
-    console.log('💡 Sistema de iluminação 3D criado');
-
-    // this.keyGeometry = this.createKeyGeometry(); // Removendo geometria customizada temporariamente
-    console.log('🔲 Usando BoxGeometry padrão');
-
     this.keyboardGroup = new THREE.Group();
-    console.log('🏗️ Grupo do teclado criado');
 
-    // Aguardar criação das texturas
     await this.createKeyboardLayout();
-    console.log('⌨️ Layout do teclado criado');
 
-    // Posicionamento do teclado na frente do texto
-    this.keyboardGroup.rotation.x = -Math.PI / 8; // Rotação mais sutil
-    this.keyboardGroup.position.set(0, -2, 5); // Mais para frente
+    this.keyboardGroup.rotation.x = -Math.PI / 8;
+    this.keyboardGroup.position.set(0, -2, 5);
     this.scene.add(this.keyboardGroup);
-    console.log('📦 Grupo posicionado na frente');
 
     this.animate();
-    console.log('🎬 Animação iniciada');
 
     if (onBuild) {
       setTimeout(() => {
-        console.log('✅ Callback onBuild executado');
         onBuild();
       }, 500);
     }
-  }  // Anima montagem das teclas uma a uma
-  public animateKeyboardBuild(): void {
-    console.log('🎯 Animando build do teclado. Teclas disponíveis:', this.keys.length);
-
-    this.keys.forEach((key, i) => {
-      key.scale.set(0, 0, 0);
-      key.visible = true;
-      console.log(`🔧 Tecla ${i} configurada para animação`);
-    });
-
-    gsap.to(this.keys.map(k => k.scale), {
-      x: 0.8,
-      y: 0.8,
-      z: 0.8,
-      stagger: 0.1,
-      duration: 0.6,
-      ease: 'back.out(1.7)',
-      onStart: () => {
-        console.log('▶️ Animação de escala iniciada');
-        this.keys.forEach(k => k.visible = true);
-      },
-      onComplete: () => {
-        console.log('✅ Animação de escala completada');
-      }
-    });
   }
-  private createKeyGeometry(): THREE.BufferGeometry {
-    const shape = new THREE.Shape();
-    const size = 3.5; // Reduzindo de 4.7 para 3.5 para diminuir o tamanho geral
-    const radius = 0.2; // Reduzindo o raio também
-    shape.moveTo(-size / 2 + radius, -size / 2);
-    shape.lineTo(size / 2 - radius, -size / 2);
-    shape.quadraticCurveTo(size / 2, -size / 2, size / 2, -size / 2 + radius);
-    shape.lineTo(size / 2, size / 2 - radius);
-    shape.quadraticCurveTo(size / 2, size / 2, size / 2 - radius, size / 2);
-    shape.lineTo(-size / 2 + radius, size / 2);
-    shape.quadraticCurveTo(-size / 2, size / 2, -size / 2, size / 2 - radius);
-    shape.lineTo(-size / 2, -size / 2 + radius);
-    shape.quadraticCurveTo(-size / 2, -size / 2, -size / 2 + radius, -size / 2);
 
-    const extrudeSettings = {
-      steps: 1,
-      depth: 3,
-      bevelEnabled: true,
-      bevelThickness: 0.2,
-      bevelSize: 0.1,
-      bevelOffset: 0,
-      bevelSegments: 8
-    };
-
-    return new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  }
-  // 3. APARÊNCIA: Teclado com texturas SVG das tecnologias
+  // Criar teclado com layout 3x3 e ícones SVG
   private async createKeyboardLayout(): Promise<void> {
-    console.log('🔨 Iniciando createKeyboardLayout com ícones SVG...');
+    console.log('🔨 Criando teclado com ícones SVG...');
 
     const keySize = 3.2;
-    const keyDepth = 1.2; // Profundidade dos cubos
+    const keyDepth = 1.2;
     const spacing = 0.8;
     const numCols = 3;
     const numRows = 3;
     const techStack = this.getTechStack();
 
-    // Criar as teclas com texturas
     let keyIndex = 0;
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        // Criar cubo 3D com profundidade
+        if (keyIndex >= techStack.length) break;
+
         const geometry = new THREE.BoxGeometry(keySize, keySize, keyDepth);
         const material = await this.createSVGMaterial(techStack[keyIndex]);
 
         const key = new THREE.Mesh(geometry, material);
 
-        // Posicionamento em grid
         key.position.x = (col - (numCols - 1) / 2) * (keySize + spacing);
         key.position.y = -((row - (numRows - 1) / 2) * (keySize + spacing));
-        key.position.z = keyDepth / 2; // Elevar para ficar acima do plano
+        key.position.z = keyDepth / 2;
 
-        // Adicionar metadados da tecnologia
         key.userData = {
           techName: techStack[keyIndex].name,
           techColor: techStack[keyIndex].color,
@@ -413,7 +331,7 @@ export class ThreeDKeyboardService implements OnDestroy {
 
     console.log('✅ Todos os cubos 3D com ícones SVG criados:', this.keys.length);
   }
-  // 4. ANIMAÇÃO: Lógica de onda com efeitos de brilho nas texturas
+
   private animate(): void {
     this.ngZone.runOutsideAngular(() => {
       const loop = () => {
@@ -428,59 +346,23 @@ export class ThreeDKeyboardService implements OnDestroy {
           this.waveCenter.set(999, 999, 999);
         }
 
-        const maxDistance = 9;
-        const peakHeight = 3;
-        const baseHeight = -1;
-
-        this.keys.forEach(key => {
+        this.keys.forEach((key: THREE.Mesh) => {
           const distance = key.position.distanceTo(this.waveCenter);
-          const influence = Math.max(0, 1 - (distance / maxDistance));
+          const waveIntensity = Math.max(0, 1 - distance / 8);
 
-          const targetZ = baseHeight + (peakHeight - baseHeight) * influence;
+          if (distance < 8) {
+            const time = Date.now() * 0.005;
+            const wave = Math.sin(time - distance) * waveIntensity;
+            key.position.z = (key.userData['index'] % 3 === 1 ? 0.6 : 0.3) + wave * 0.5;
 
-          gsap.to(key.position, {
-            z: targetZ,
-            duration: 1.4,
-            ease: 'power2.out',
-          });
-
-          // Aplicar efeito de brilho baseado no hover
-          const material = key.material as THREE.MeshStandardMaterial;
-          const originalColor = key.userData['techColor'];
-
-          if (influence > 0.1) {
-            // Aumentar emissive para efeito de brilho
-            gsap.to(material.emissive, {
-              r: influence * 0.3,
-              g: influence * 0.8,
-              b: influence * 0.5,
-              duration: 0.5,
-              ease: 'power2.out'
-            });
-
-            // Aumentar metalness para efeito mais premium
-            gsap.to(material, {
-              metalness: 0.9,
-              roughness: 0.1,
-              duration: 0.5,
-              ease: 'power2.out'
-            });
+            const material = key.material as THREE.MeshStandardMaterial;
+            material.emissiveIntensity = 0.1 + waveIntensity * 0.3;
+            material.metalness = 0.2 + waveIntensity * 0.3;
           } else {
-            // Retornar ao estado original
-            gsap.to(material.emissive, {
-              r: 0.05,
-              g: 0.05,
-              b: 0.05,
-              duration: 1.0,
-              ease: 'power2.out'
-            });
-
-            gsap.to(material, {
-              metalness: 0.7,
-              roughness: 0.3,
-              duration: 1.0,
-              ease: 'power2.out'
-            });
+            key.position.z = key.userData['index'] % 3 === 1 ? 0.6 : 0.3;
+            const material = key.material as THREE.MeshStandardMaterial;
+            material.emissiveIntensity = 0.1;
+            material.metalness = 0.2;
           }
         });
 
@@ -501,11 +383,11 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mantém o pixel ratio limitado
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
   public updateMousePosition(event: MouseEvent): void {
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
   }
 }
