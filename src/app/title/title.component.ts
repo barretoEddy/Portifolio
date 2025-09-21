@@ -209,17 +209,6 @@ export class TitleComponent implements OnInit, AfterViewInit, OnDestroy {
       
       this.ctx.restore();
     }
-
-    // Draw mouse interaction area
-    if (this.isMouseInSection) {
-      this.ctx.save();
-      this.ctx.globalAlpha = 0.1;
-      this.ctx.fillStyle = 'rgba(100, 255, 218, 0.2)';
-      this.ctx.beginPath();
-      this.ctx.arc(this.mouseX, this.mouseY, 100, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.restore();
-    }
   }
 
   private animate = () => {
