@@ -9,14 +9,16 @@ import { PerceptionComponent } from '../perception/perception.component';
 import { ConclusionComponent } from '../conclusion/conclusion.component';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { TitleComponent } from "../title/title.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule, HeaderComponent, FooterComponent, HeroComponent, CabinComponent,
-    MaintenanceComponent, PerceptionComponent, ConclusionComponent
-  ],
+    MaintenanceComponent, PerceptionComponent, ConclusionComponent,
+    TitleComponent
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
