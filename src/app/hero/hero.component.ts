@@ -1,114 +1,115 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, inject, HostListener } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CommonModule } from '@angular/common';
-import { ThreeDKeyboardNewService } from '../services/three-d-keyboard-new.service';
 
 @Component({
   selector: 'app-hero',
   standalone: true,
   imports: [CommonModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.css']
 })
 export class HeroComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('webglCanvas', { static: true })
-  private canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('heroTitle', { static: true, read: ElementRef })
-  private heroTitleRef!: ElementRef<HTMLDivElement>;
   @ViewChild('heroSection', { static: true, read: ElementRef })
   private heroSectionRef!: ElementRef<HTMLDivElement>;
 
-  private threeDService = inject(ThreeDKeyboardNewService);
-  private keyboardBuilt = false;
+  @ViewChild('splineViewer', { static: false, read: ElementRef })
+  private splineViewerRef!: ElementRef;
+
   private tl: gsap.core.Timeline | null = null;
+  private splineLoaded = false;
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Testar diretamente sem scroll trigger
-    console.log('🚀 ngAfterViewInit - iniciando teclado diretamente');
-    this.buildKeyboard();
+    // Inicia animações dos textos imediatamente
+    this.setupTextAnimations();
 
-    // this.setupHeroAnimation();
+    // Configura observador para detectar quando Spline carrega
+    this.setupSplineObserver();
   }
 
-  private setupHeroAnimation(): void {
-    const heroSection = this.heroSectionRef.nativeElement;
-    const heroTitle = this.heroTitleRef.nativeElement;
-    const canvas = this.canvasRef.nativeElement;
+  private setupTextAnimations(): void {
+    gsap.fromTo('.hero-title',
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.3 }
+    );
 
-    // Animação de entrada inicial do título (não depende do scroll)
-    gsap.from(heroTitle, {
-      opacity: 1,
-      y: 50,
-      duration: 1.2,
-      ease: 'power3.out',
-      delay: 0.3
+    gsap.fromTo('.hero-description',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.6 }
+    );
+  }
+
+  private setupSplineObserver(): void {
+    const observer = new MutationObserver(() => {
+      const splineElement = document.querySelector('spline-viewer');
+      if (splineElement && !this.splineLoaded) {
+        this.splineLoaded = true;
+        this.setupSplineAnimations();
+        observer.disconnect();
+      }
     });
 
-    // A timeline principal controlada pelo ScrollTrigger
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    // Fallback após 3 segundos
+    setTimeout(() => {
+      if (!this.splineLoaded) {
+        this.setupSplineAnimations();
+        observer.disconnect();
+      }
+    }, 3000);
+  }
+
+  private setupSplineAnimations(): void {
+    gsap.fromTo('.spline-keyboard',
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 1.5, ease: 'power3.out' }
+    );
+
+    this.setupScrollAnimations();
+  }
+
+  private setupScrollAnimations(): void {
+    const heroSection = this.heroSectionRef.nativeElement;
+
+    // ScrollTrigger para parallax suave
     this.tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: '+=2500', // Duração do "pin"
-        scrub: 1,      // Animação suave atrelada ao scroll
-        pin: true,
-        anticipatePin: 1,
-      },
+        end: '+=100vh',
+        scrub: true,
+        pin: false
+      }
     });
 
-    // 1. Título desaparece (fade out, move para cima, diminui)
-    this.tl.to(heroTitle, {
-      opacity: 0,
+    this.tl.to('.hero-content', {
       y: -100,
-      scale: 0.8,
-      duration: 1, // Duração relativa dentro da timeline
-      ease: 'power2.inOut',
-    }, 0); // Inicia no começo da timeline
+      opacity: 0.3,
+      duration: 1,
+      ease: 'none'
+    });
 
-    // 2. Canvas aparece (fade in e escala)
-    this.tl.fromTo(canvas,
-      { display: 'none', opacity: 0, scale: 0.5 },
-      {
-        display: 'block',
-        opacity: 1,
-        scale: 1.0, // Reduzindo de 1.2 para 1.0 para não ultrapassar a div
-        duration: 1.5, // Duração relativa
-        ease: 'power3.out',
-        onStart: () => {
-          // Executar buildKeyboard de forma assíncrona sem bloquear GSAP
-          this.buildKeyboard();
-        },
-      },
-      0.5 // Inicia um pouco depois do título começar a sumir
-    );
-  }
-
-  private async buildKeyboard(): Promise<void> {
-    if (!this.keyboardBuilt) {
-      await this.threeDService.createScene(this.canvasRef);
-      this.keyboardBuilt = true;
-    }
+    this.tl.to('.spline-keyboard', {
+      y: -50,
+      scale: 1.1,
+      duration: 1,
+      ease: 'none'
+    }, 0);
   }
 
   ngOnDestroy(): void {
-    // Garante que a timeline e o ScrollTrigger sejam destruídos para evitar memory leaks
     if (this.tl) {
       this.tl.scrollTrigger?.kill();
       this.tl.kill();
     }
-    this.threeDService.ngOnDestroy();
-  }
-
-  @HostListener('window:resize')
-  onResize() {
-    this.threeDService.resize();
-  }
-
-  @HostListener('window:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    this.threeDService.updateMousePosition(event);
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
   }
 }

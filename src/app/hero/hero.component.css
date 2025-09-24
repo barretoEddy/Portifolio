@@ -5,46 +5,97 @@
   min-height: 100vh;
   background-color: var(--color-primary);
   position: relative;
+  overflow: hidden;
 }
 
 .hero-section {
   position: relative;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  padding: 2rem;
+  z-index: 1;
 }
 
-.background-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+.hero-content {
+  text-align: center;
+  margin-bottom: 3rem;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #ffffff, #a0a0ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+
+.hero-description {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: #b0b0c0;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.keyboard-container {
+  width: 100%;
+  max-width: 800px;
+  height: 500px;
+  position: relative;
+  z-index: 1;
+}
+
+.spline-keyboard {
   width: 100%;
   height: 100%;
-  z-index: 1;
-  opacity: 1;
-  transition: opacity 0.5s ease;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
-/* Canvas positioning states */
-.background-canvas.centered {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1.2);
-  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.spline-keyboard:hover {
+  transform: translateY(-5px);
 }
 
-.background-canvas.active {
-  opacity: 1;
-  transform: scale(1.1);
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .background-canvas.centered {
-    transform: translate(-50%, -50%) scale(1);
+  .hero-section {
+    padding: 1rem;
+  }
+
+  .keyboard-container {
+    height: 350px;
+    max-width: 100%;
+  }
+
+  .hero-content {
+    margin-bottom: 2rem;
   }
 }
 
+@media (max-width: 480px) {
+  .keyboard-container {
+    height: 300px;
+  }
+}
+
+/* Ocultar loading duplicado */
+.spline-keyboard::before {
+  display: none !important;
+}

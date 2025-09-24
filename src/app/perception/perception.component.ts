@@ -26,43 +26,52 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   private animationTimeline?: gsap.core.Timeline;
 
   projects: Project[] = [];
-  isLoading = true;
+  isLoading = false; // Mudando para false por padrão
   private animationSetup = false;
 
   ngOnInit(): void {
+    // Usar dados mock imediatamente para evitar loading
+    this.projects = this.getMockProjects();
+
+    // Tentar carregar dados do Sanity em segundo plano
     this.fetchProjects();
   }
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
-    // As animações serão configuradas após o conteúdo ser carregado
+
+    // Configurar animações imediatamente já que temos dados mock
+    setTimeout(() => {
+      this.setupAnimations();
+    }, 100);
   }
 
   async fetchProjects(): Promise<void> {
-    this.isLoading = true;
     try {
       console.log('Tentando carregar projetos do Sanity...');
-      const projects = await this.sanityService.getProjects();
+
+      // Timeout para evitar loading infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout')), 2000);
+      });
+
+      const projectsPromise = this.sanityService.getProjects();
+
+      const projects = await Promise.race([projectsPromise, timeoutPromise]) as Project[];
       console.log('Projetos carregados do Sanity:', projects);
 
       if (projects && projects.length > 0) {
         this.projects = projects;
         console.log('Usando projetos do Sanity');
-      } else {
-        this.projects = this.getMockProjects();
-        console.log('Nenhum projeto encontrado no Sanity, usando dados mock');
+
+        // Configurar animações após carregar conteúdo
+        setTimeout(() => {
+          this.setupAnimations();
+        }, 100);
       }
     } catch (error) {
       console.error('Erro ao buscar projetos:', error);
-      this.projects = this.getMockProjects();
-      console.log('Erro no Sanity, usando dados mock');
-    } finally {
-      this.isLoading = false;
-
-      // Configurar animações após carregar conteúdo
-      setTimeout(() => {
-        this.setupAnimations();
-      }, 100);
+      console.log('Mantendo dados mock');
     }
   }  private getMockProjects(): Project[] {
     return [
