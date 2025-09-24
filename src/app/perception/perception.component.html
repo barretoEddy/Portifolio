@@ -28,22 +28,28 @@
 
           <div class="project-image"
                [attr.data-project-index]="i">
-            <a [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
+            <a *ngIf="project.liveUrl" [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
               <img [src]="getProjectImageUrl(project.mainImage)"
                    [alt]="project.title"
                    class="project-img">
             </a>
+            <img *ngIf="!project.liveUrl"
+                 [src]="getProjectImageUrl(project.mainImage)"
+                 [alt]="project.title"
+                 class="project-img">
           </div>
 
           <div class="project-info"
                [attr.data-project-index]="i">
             <h3 class="project-title">
-              <a [href]="project.liveUrl"
+              <a *ngIf="project.liveUrl"
+                 [href]="project.liveUrl"
                  target="_blank"
                  rel="noopener noreferrer"
                  class="title-link">
                 <span class="title-text">{{ project.title }}</span>
               </a>
+              <span *ngIf="!project.liveUrl" class="title-text">{{ project.title }}</span>
             </h3>
 
             <div class="project-description">
@@ -66,7 +72,8 @@
                  class="link-button github-link">
                 <span class="link-text">Código</span>
               </a>
-              <a [href]="project.liveUrl"
+              <a *ngIf="project.liveUrl"
+                 [href]="project.liveUrl"
                  target="_blank"
                  rel="noopener noreferrer"
                  aria-label="External Link"
