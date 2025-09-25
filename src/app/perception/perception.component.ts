@@ -191,4 +191,12 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
   }
+
+  trackByProjectId(index: number, project: Project): string {
+    return project._id;
+  }
+
+  trackByTech(index: number, tech: string): string {
+    return tech;
+  }
 }

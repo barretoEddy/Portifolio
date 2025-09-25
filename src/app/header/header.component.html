@@ -10,13 +10,11 @@
       </svg>
     </div>
     <ul class="nav-links" [class.active]="mobileMenuOpen()">
-      @for(link of navLinks; track link.path) {
-        <li>
-          <a [routerLink]="link.path" (click)="closeMobileMenu()">{{ link.label }}</a>
-        </li>
-      }
+      <li *ngFor="let link of navLinks">
+        <a [routerLink]="link.path" (click)="closeMobileMenu()">{{ link.label }}</a>
+      </li>
       <li>
-        <a href="mailto:eduard.mass&#64;hotmail.com" class="contact-button" (click)="closeMobileMenu()">
+        <a [routerLink]="['/login']" class="contact-button" (click)="closeMobileMenu()">
           <span class="button-text">Diga Olá</span>
           <span class="button-icon">👋</span>
         </a>

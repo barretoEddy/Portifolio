@@ -32,4 +32,8 @@ export class HeaderComponent {
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
   }
+
+  trackByPath(index: number, link: any): string {
+    return link.path;
+  }
 }

@@ -1,0 +1,110 @@
+<div class="auth-container">
+  <div class="auth-background">
+    <div class="auth-overlay"></div>
+  </div>
+  
+  <div class="auth-content">
+    <!-- Header -->
+    <div class="auth-header">
+      <button class="btn-back" (click)="goHome()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m12 19-7-7 7-7"></path>
+          <path d="m19 12H5"></path>
+        </svg>
+        Voltar
+      </button>
+      <h1 class="auth-title">
+        {{ isAdminAccess ? 'Acesso Administrativo' : 'Entre na sua Conta' }}
+      </h1>
+      <p class="auth-subtitle">
+        {{ isAdminAccess ? 'Área restrita para administradores' : 'Acesse sua área de contato personalizada' }}
+      </p>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-input"
+          [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          placeholder="seu&#64;email.com"
+        >
+        <div class="form-error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email é obrigatório</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Digite um email válido</span>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password" class="form-label">Senha</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          class="form-input"
+          [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          placeholder="Sua senha"
+        >
+        <div class="form-error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Senha é obrigatória</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="btn-primary" 
+        [disabled]="loginForm.invalid || isLoading"
+        [class.loading]="isLoading"
+      >
+        <span class="btn-text" *ngIf="!isLoading">
+          {{ isAdminAccess ? 'Acessar Dashboard' : 'Entrar' }}
+        </span>
+        <span class="btn-loading" *ngIf="isLoading">
+          <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+              <animateTransform attributeName="transform" type="rotate" dur="2s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
+              <animate attributeName="stroke-dashoffset" dur="2s" values="31.416;0;31.416" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+          Entrando...
+        </span>
+      </button>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>ou</span>
+      </div>
+
+      <!-- Register Link -->
+      <button type="button" class="btn-secondary" (click)="goToRegister()">
+        Criar Nova Conta
+      </button>
+    </form>
+
+    <!-- Admin Hint -->
+    <div class="admin-hint" *ngIf="!isAdminAccess">
+      <p>
+        <strong>Para desenvolvedores:</strong> Use o email 
+        <code>admin&#64;eduardobarreto.dev</code> para acessar o dashboard administrativo.
+      </p>
+    </div>
+  </div>
+</div>

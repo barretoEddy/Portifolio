@@ -17,14 +17,13 @@
 
   <ng-template #content>
     <div #projectsContainer>
-      @if (projects.length === 0) {
-        <div class="no-projects">
-          <p>Nenhum projeto encontrado.</p>
-        </div>
-      }
-      @for (project of projects; track project._id; let i = $index) {
-        <div class="project-item"
-             [class.text-right]="i % 2 !== 0">
+      <div class="no-projects" *ngIf="projects.length === 0">
+        <p>Nenhum projeto encontrado.</p>
+      </div>
+      <div class="project-item" 
+           *ngFor="let project of projects; let i = index"
+           [class.text-right]="i % 2 !== 0"
+           [attr.data-project-index]="i">
 
           <div class="project-image"
                [attr.data-project-index]="i">
@@ -57,11 +56,9 @@
             </div>
 
             <ul class="project-tech-list">
-              @for (tech of project.technologies; track tech; let techIndex = $index) {
-                <li class="tech-item">
-                  {{ tech }}
-                </li>
-              }
+              <li class="tech-item" *ngFor="let tech of project.technologies">
+                {{ tech }}
+              </li>
             </ul>
 
             <div class="project-links">
@@ -83,7 +80,7 @@
             </div>
           </div>
         </div>
-      }
+      
     </div>
   </ng-template>
 </div>

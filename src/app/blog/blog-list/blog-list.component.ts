@@ -30,4 +30,8 @@ export class BlogListComponent implements OnInit {
     // Usamos uma largura menor para as imagens da lista
     return this.sanityService.getImageUrl(source).width(600).url();
   }
+
+  trackByPostId(index: number, post: Post): string {
+    return post._id;
+  }
 }

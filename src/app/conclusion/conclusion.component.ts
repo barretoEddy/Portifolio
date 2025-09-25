@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -29,6 +30,8 @@ export class ConclusionComponent implements AfterViewInit, OnDestroy {
   };
 
   isSubmitting = false;
+
+  constructor(private router: Router) {}
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
@@ -135,29 +138,8 @@ export class ConclusionComponent implements AfterViewInit, OnDestroy {
   onSubmitForm(): void {
     if (this.isSubmitting) return;
 
-    // Validação básica
-    if (!this.formData.name.trim() ||
-        !this.formData.email.trim() ||
-        !this.formData.message.trim()) {
-      alert('Por favor, preencha todos os campos.');
-      return;
-    }
-
-    // Validação de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.formData.email)) {
-      alert('Por favor, insira um email válido.');
-      return;
-    }
-
-    this.isSubmitting = true;
-
-    // Simular envio (você pode integrar com um serviço real posteriormente)
-    setTimeout(() => {
-      alert('Mensagem enviada com sucesso! Obrigado pelo contato.');
-      this.resetForm();
-      this.isSubmitting = false;
-    }, 2000);
+    // Redirecionar para a tela de login/registro
+    this.router.navigate(['/register']);
   }
 
   private resetForm(): void {

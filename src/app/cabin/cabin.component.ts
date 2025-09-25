@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -18,6 +19,8 @@ export class CabinComponent implements AfterViewInit, OnDestroy {
   @ViewChild('aboutImage') aboutImage!: ElementRef<HTMLElement>;
 
   private scrollTriggerInstance: ScrollTrigger | null = null;
+
+  constructor(private router: Router) {}
 
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -39,18 +42,8 @@ export class CabinComponent implements AfterViewInit, OnDestroy {
     }
   }
   scrollToContact(): void {
-    const conclusionSection = document.getElementById('conclusion');
-    if (conclusionSection) {
-      // Usando GSAP para um scroll mais suave e controlado
-      gsap.to(window, {
-        duration: 1.5,
-        scrollTo: {
-          y: conclusionSection,
-          offsetY: 80 // Offset para não ficar colado no topo
-        },
-        ease: "power3.out"
-      });
-    }
+    // Redirecionar para a tela de login/registro
+    this.router.navigate(['/login']);
   }
 
   private setupSectionAnimation(): void {

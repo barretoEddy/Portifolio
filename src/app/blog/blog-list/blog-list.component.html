@@ -21,21 +21,19 @@
 
   <ng-template #content>
     <main class="post-grid">
-      @for (post of posts; track post._id) {
-        <a [routerLink]="['/blog', post.slug.current]" class="post-card">
-          <div class="post-image-container">
-            <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-image">
-            <div class="image-overlay">
-              <div class="overlay-icon">📖</div>
-            </div>
+      <a [routerLink]="['/blog', post.slug.current]" class="post-card" *ngFor="let post of posts">
+        <div class="post-image-container">
+          <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-image">
+          <div class="image-overlay">
+            <div class="overlay-icon">📖</div>
           </div>
-          <div class="post-content">
-            <h2 class="post-title">{{ post.title }}</h2>
-            <p class="post-excerpt">{{ post.excerpt }}</p>
-            <p class="post-date">{{ post.publishedAt | date:'d MMMM, y' }}</p>
-          </div>
-        </a>
-      }
+        </div>
+        <div class="post-content">
+          <h2 class="post-title">{{ post.title }}</h2>
+          <p class="post-excerpt">{{ post.excerpt }}</p>
+          <p class="post-date">{{ post.publishedAt | date:'d MMMM, y' }}</p>
+        </div>
+      </a>
     </main>
   </ng-template>
 </div>

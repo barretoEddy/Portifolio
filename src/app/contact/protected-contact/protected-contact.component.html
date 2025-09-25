@@ -1,0 +1,167 @@
+<div class="protected-contact-container">
+  <div class="contact-header">
+    <div class="user-welcome">
+      <h1 class="page-title">Área de Contato Exclusiva</h1>
+      <p class="welcome-message">
+        Olá, <strong>{{ currentUser?.fullName }}</strong>! 
+        Utilize este formulário personalizado para entrar em contato.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-logout" (click)="logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16,17 21,12 16,7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <div class="contact-content">
+    <!-- Success Message -->
+    <div class="success-alert" *ngIf="successMessage">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22,4 12,14.01 9,11.01"></polyline>
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="user-info-card">
+      <div class="user-avatar">
+        {{ currentUser?.fullName?.charAt(0) }}
+      </div>
+      <div class="user-details">
+        <h3>{{ currentUser?.fullName }}</h3>
+        <p>{{ currentUser?.email }}</p>
+        <p *ngIf="currentUser?.company" class="company">{{ currentUser?.company }}</p>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="contact-form-card">
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="subject" class="form-label">Assunto *</label>
+            <input
+              id="subject"
+              type="text"
+              formControlName="subject"
+              class="form-input"
+              placeholder="Ex: Proposta de projeto"
+              [class.error]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched">
+            <div class="form-error" *ngIf="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched">
+              Assunto é obrigatório
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="projectType" class="form-label">Tipo de Projeto *</label>
+            <select
+              id="projectType"
+              formControlName="projectType"
+              class="form-select"
+              [class.error]="contactForm.get('projectType')?.invalid && contactForm.get('projectType')?.touched">
+              <option value="">Selecione o tipo</option>
+              <option value="website">Website/Landing Page</option>
+              <option value="webapp">Aplicação Web</option>
+              <option value="mobile">Aplicativo Mobile</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="consultation">Consultoria</option>
+              <option value="maintenance">Manutenção</option>
+              <option value="other">Outro</option>
+            </select>
+            <div class="form-error" *ngIf="contactForm.get('projectType')?.invalid && contactForm.get('projectType')?.touched">
+              Selecione o tipo de projeto
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="budget" class="form-label">Orçamento Estimado</label>
+            <select id="budget" formControlName="budget" class="form-select">
+              <option value="">Não definido</option>
+              <option value="< R$ 5.000">Menos de R$ 5.000</option>
+              <option value="R$ 5.000 - R$ 15.000">R$ 5.000 - R$ 15.000</option>
+              <option value="R$ 15.000 - R$ 30.000">R$ 15.000 - R$ 30.000</option>
+              <option value="R$ 30.000 - R$ 50.000">R$ 30.000 - R$ 50.000</option>
+              <option value="> R$ 50.000">Mais de R$ 50.000</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="deadline" class="form-label">Prazo Desejado</label>
+            <input
+              id="deadline"
+              type="date"
+              formControlName="deadline"
+              class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="message" class="form-label">Descrição do Projeto *</label>
+          <textarea
+            id="message"
+            formControlName="message"
+            class="form-textarea"
+            rows="5"
+            placeholder="Descreva seu projeto, objetivos, funcionalidades desejadas..."
+            [class.error]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"></textarea>
+          <div class="form-error" *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
+            <span *ngIf="contactForm.get('message')?.errors?.['required']">Descrição é obrigatória</span>
+            <span *ngIf="contactForm.get('message')?.errors?.['minlength']">Descrição deve ter pelo menos 20 caracteres</span>
+          </div>
+          <div class="char-counter">
+            {{ contactForm.get('message')?.value?.length || 0 }} caracteres
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="attachment" class="form-label">Anexos (opcional)</label>
+          <input
+            id="attachment"
+            type="file"
+            formControlName="attachment"
+            class="form-file"
+            accept=".pdf,.doc,.docx,.jpg,.png,.zip"
+            multiple>
+          <div class="file-hint">
+            Aceitos: PDF, DOC, DOCX, JPG, PNG, ZIP (máx. 10MB cada)
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="contactForm.invalid || isLoading"
+          [class.loading]="isLoading">
+          <span class="btn-content" *ngIf="!isLoading">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            Enviar Mensagem
+          </span>
+          <span class="btn-loading" *ngIf="isLoading">
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" 
+                      stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                <animateTransform attributeName="transform" type="rotate" dur="2s" 
+                                values="0 12 12;360 12 12" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" dur="2s" 
+                        values="31.416;0;31.416" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+            Enviando...
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -45,7 +45,14 @@
     </div>
 
     <div class="contact-form">
-      <h3 class="form-title">Ou envie uma mensagem:</h3>
+      <h3 class="form-title">Envie uma mensagem personalizada:</h3>
+      <div class="auth-notice">
+        <div class="notice-icon">🔐</div>
+        <div class="notice-content">
+          <p><strong>Área de Contato Exclusiva</strong></p>
+          <p>Para enviar mensagens personalizadas e ter acesso a recursos avançados, você precisa criar uma conta.</p>
+        </div>
+      </div>
       <form (ngSubmit)="onSubmitForm()" #contactForm="ngForm">
         <div class="form-group">
           <label for="name" class="form-label">Nome</label>
@@ -56,7 +63,8 @@
             [(ngModel)]="formData.name"
             placeholder="Seu nome"
             required
-            class="form-input">
+            readonly
+            class="form-input readonly">
         </div>
 
         <div class="form-group">
@@ -68,7 +76,8 @@
             [(ngModel)]="formData.email"
             placeholder="Seu email"
             required
-            class="form-input">
+            readonly
+            class="form-input readonly">
         </div>
 
         <div class="form-group">
@@ -80,15 +89,16 @@
             placeholder="Sua mensagem"
             required
             rows="4"
-            class="form-textarea"></textarea>
+            readonly
+            class="form-textarea readonly"></textarea>
         </div>
 
         <button
           type="submit"
-          class="submit-button"
-          [disabled]="!contactForm.valid || isSubmitting">
-          <span *ngIf="!isSubmitting">Enviar Mensagem 📨</span>
-          <span *ngIf="isSubmitting">Enviando... ⏳</span>
+          class="submit-button auth-button">
+          <span class="button-icon">📝</span>
+          <span class="button-text">Criar Conta para Enviar</span>
+          <span class="button-arrow">→</span>
         </button>
       </form>
     </div>
