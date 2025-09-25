@@ -9,7 +9,7 @@ import { MarkdownModule } from 'ngx-markdown'; // Importando o MarkdownModule
   standalone: true,
   imports: [CommonModule, RouterModule, DatePipe, MarkdownModule], // Adicionando MarkdownModule
   templateUrl: './blog-post.component.html',
-  styleUrl: './blog-post.component.css'
+  styleUrl: './blog-post.component.complex.css'
 })
 export class BlogPostComponent implements OnInit {
   private sanityService = inject(SanityService);

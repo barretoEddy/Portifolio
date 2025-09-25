@@ -6,14 +6,29 @@
   </header>
 
   <div *ngIf="isLoading; else content" class="loading-state">
-    <p>A carregar artigos...</p>
+    <div class="loading-container">
+      <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <div class="loading-text">Carregando artigos...</div>
+      <div class="loading-progress">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
   </div>
 
   <ng-template #content>
     <main class="post-grid">
       @for (post of posts; track post._id) {
         <a [routerLink]="['/blog', post.slug.current]" class="post-card">
-          <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-image">
+          <div class="post-image-container">
+            <img [src]="getPostImageUrl(post.mainImage)" [alt]="post.title" class="post-image">
+            <div class="image-overlay">
+              <div class="overlay-icon">📖</div>
+            </div>
+          </div>
           <div class="post-content">
             <h2 class="post-title">{{ post.title }}</h2>
             <p class="post-excerpt">{{ post.excerpt }}</p>

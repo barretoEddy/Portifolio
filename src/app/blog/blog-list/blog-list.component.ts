@@ -8,7 +8,7 @@ import { SanityService, Post } from '../../services/sanity.service';
   standalone: true,
   imports: [CommonModule, RouterModule, DatePipe], // DatePipe para formatar a data
   templateUrl: './blog-list.component.html',
-  styleUrl: './blog-list.component.css'
+  styleUrl: './blog-list.component.complex.css'
 })
 export class BlogListComponent implements OnInit {
   private sanityService = inject(SanityService);
