@@ -1,29 +1,59 @@
-<div class="about-content container" #cabinSection>
-  <div class="about-text">
-    <h2 class="sr-only">Sobre Mim</h2>
-    <p class="sr-only">
-      Olá! Sou o Eddy, um desenvolvedor apaixonado por criar aplicações web intuitivas e performáticas.</p>
-    <p class="sr-only"> Com sólida experiência em Angular,
-      TypeScript e tecnologias front-end modernas,
-      meu foco é transformar ideias complexas em soluções elegantes e funcionais.
-    </p>
-    <p class="sr-only">
-      Aqui estão algumas das tecnologias com as quais tenho trabalhado recentemente:
-    </p>
+<div class="about-section" #cabinSection>
+  <div class="about-container">
+    <!-- Content Side -->
+    <div class="about-content">
+      <div class="content-wrapper" #cabinTexts>
+        <h1 class="about-title" #cabinTitle>
+          <span class="title-highlight">Olá, eu sou</span>
+          <span class="title-main">Eduardo - Full Stack</span>
+          <span class="title-sub">Developer</span>
+        </h1>
 
-    <h2 aria-hidden="true" class="animated-title" #cabinTitle>Sobre Mim</h2>
-    <div #cabinTexts>
-      <p aria-hidden="true" class="animated-text">
-        Olá! Sou o Eddy, um desenvolvedor apaixonado por criar aplicações web intuitivas e performáticas.</p>
-      <p aria-hidden="true" class="animated-text"> Com sólida experiência em Angular,
-        TypeScript e tecnologias front-end modernas,
-        meu foco é transformar ideias complexas em soluções elegantes e funcionais.
-      </p>
+        <p class="about-description">
+          Desenvolvedor apaixonado por criar experiências digitais excepcionais.
+          Especializado em transformar ideias complexas em soluções elegantes e funcionais
+          usando as tecnologias mais modernas do mercado.
+        </p>
 
-  </div>
-  <div class="about-image" #aboutImage>
-    <div class="image-placeholder">
-      <img src="img/perfil.jpg" alt="Eddy">
+        <div class="tech-stack">
+          <h3 class="tech-title">Tecnologias que domino:</h3>
+          <div class="tech-grid">
+            <div class="tech-item">Angular</div>
+            <div class="tech-item">TypeScript</div>
+            <div class="tech-item">React</div>
+            <div class="tech-item">Node.js</div>
+            <div class="tech-item">MongoDB</div>
+            <div class="tech-item">GSAP</div>
+          </div>
+        </div>
+
+        <div class="cta-buttons">
+          <button class="btn-primary" (click)="scrollToContact()">Contratar</button>
+          <button class="btn-secondary" (click)="scrollToPortfolio()">Ver Portfolio</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Image Side -->
+    <div class="about-image" #aboutImage>
+      <div class="image-container">
+        <div class="image-glow"></div>
+        <div class="image-wrapper">
+          <img src="img/perfil.jpg" alt="Eduardo - Full Stack Developer" class="profile-image">
+        </div>
+        <div class="floating-elements">
+          <div class="float-element element-1"></div>
+          <div class="float-element element-2"></div>
+          <div class="float-element element-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Elements -->
+  <div class="bg-elements">
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
   </div>
 </div>

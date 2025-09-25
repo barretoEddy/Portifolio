@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@ang
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 @Component({
   selector: 'app-cabin',
@@ -19,8 +20,37 @@ export class CabinComponent implements AfterViewInit, OnDestroy {
   private scrollTriggerInstance: ScrollTrigger | null = null;
 
   ngAfterViewInit(): void {
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     this.setupSectionAnimation();
+  }
+
+  scrollToPortfolio(): void {
+    const perceptionSection = document.getElementById('perception');
+    if (perceptionSection) {
+      // Usando GSAP para um scroll mais suave e controlado
+      gsap.to(window, {
+        duration: 1.5,
+        scrollTo: {
+          y: perceptionSection,
+          offsetY: 80 // Offset para não ficar colado no topo
+        },
+        ease: "power3.out"
+      });
+    }
+  }
+  scrollToContact(): void {
+    const conclusionSection = document.getElementById('conclusion');
+    if (conclusionSection) {
+      // Usando GSAP para um scroll mais suave e controlado
+      gsap.to(window, {
+        duration: 1.5,
+        scrollTo: {
+          y: conclusionSection,
+          offsetY: 80 // Offset para não ficar colado no topo
+        },
+        ease: "power3.out"
+      });
+    }
   }
 
   private setupSectionAnimation(): void {
