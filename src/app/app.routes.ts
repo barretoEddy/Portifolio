@@ -29,11 +29,6 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [AdminGuard]
   },
-  // ROTA TEMPORÁRIA PARA TESTES - REMOVER EM PRODUÇÃO
-  {
-    path: 'test-supabase',
-    loadComponent: () => import('./components/supabase-test.component').then(m => m.SupabaseTestComponent)
-  },
   // A nova rota para a lista de posts do blog
   {
     path: 'blog',
