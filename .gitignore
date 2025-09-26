@@ -37,6 +37,11 @@ yarn-error.log
 testem.log
 /typings
 
+# Markdown files
+SUPABASE-SETUP-GUIDE.md
+AI-POST-GENERATOR-SETUP.md
+ENVIRONMENT-SETUP.md
+
 # System files
 .DS_Store
 Thumbs.db

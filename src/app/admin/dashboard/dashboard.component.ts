@@ -4,6 +4,7 @@ import { AuthService, User } from '../../auth/auth.service';
 import { SupabaseService, ContactMessage, Profile } from '../../services/supabase.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AiPostGeneratorComponent } from '../ai-post-generator/ai-post-generator.component';
 
 interface DashboardStats {
   totalUsers: number;
@@ -16,7 +17,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AiPostGeneratorComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

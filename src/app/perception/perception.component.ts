@@ -40,10 +40,10 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Configurar animações imediatamente já que temos dados mock
+    // Aguardar um ciclo de detecção de mudanças para garantir que os elementos estejam no DOM
     setTimeout(() => {
       this.setupAnimations();
-    }, 100);
+    }, 200);
   }
 
   async fetchProjects(): Promise<void> {
@@ -137,6 +137,15 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   private setupAnimations(): void {
     if (this.animationSetup) return;
 
+    // Verificar se todos os elementos necessários existem
+    if (!this.perceptionTitleRef?.nativeElement || !this.projectsContainerRef?.nativeElement) {
+      // Tentar novamente após um breve delay
+      setTimeout(() => {
+        this.setupAnimations();
+      }, 100);
+      return;
+    }
+
     this.animationSetup = true;
     this.contentRendered.emit();
 
@@ -160,24 +169,26 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Animação dos projetos
-    const projectItems = this.projectsContainerRef.nativeElement.querySelectorAll('.project-item');
-    if (projectItems.length > 0) {
-      gsap.fromTo(projectItems,
-        { opacity: 0, y: 80 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          stagger: 0.3,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: this.projectsContainerRef.nativeElement,
-            start: "top 80%",
-            end: "bottom 20%",
-            toggleActions: "play none none reverse"
+    if (this.projectsContainerRef?.nativeElement) {
+      const projectItems = this.projectsContainerRef.nativeElement.querySelectorAll('.project-item');
+      if (projectItems.length > 0) {
+        gsap.fromTo(projectItems,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.3,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: this.projectsContainerRef.nativeElement,
+              start: "top 80%",
+              end: "bottom 20%",
+              toggleActions: "play none none reverse"
+            }
           }
-        }
-      );
+        );
+      }
     }
   }
 
