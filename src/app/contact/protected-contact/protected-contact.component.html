@@ -3,7 +3,7 @@
     <div class="user-welcome">
       <h1 class="page-title">Área de Contato Exclusiva</h1>
       <p class="welcome-message">
-        Olá, <strong>{{ currentUser?.fullName }}</strong>! 
+        Olá, <strong>{{ currentUser?.fullName }}</strong>!
         Utilize este formulário personalizado para entrar em contato.
       </p>
     </div>
@@ -86,7 +86,7 @@
             <label for="budget" class="form-label">Orçamento Estimado</label>
             <select id="budget" formControlName="budget" class="form-select">
               <option value="">Não definido</option>
-              <option value="< R$ 5.000">Menos de R$ 5.000</option>
+              <option value=" R$ 5.000">Menos de R$ 5.000</option>
               <option value="R$ 5.000 - R$ 15.000">R$ 5.000 - R$ 15.000</option>
               <option value="R$ 15.000 - R$ 30.000">R$ 15.000 - R$ 30.000</option>
               <option value="R$ 30.000 - R$ 50.000">R$ 30.000 - R$ 50.000</option>
@@ -136,9 +136,9 @@
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          class="btn-submit" 
+        <button
+          type="submit"
+          class="btn-submit"
           [disabled]="contactForm.invalid || isLoading"
           [class.loading]="isLoading">
           <span class="btn-content" *ngIf="!isLoading">
@@ -150,11 +150,11 @@
           </span>
           <span class="btn-loading" *ngIf="isLoading">
             <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" 
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round"
                       stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                <animateTransform attributeName="transform" type="rotate" dur="2s" 
+                <animateTransform attributeName="transform" type="rotate" dur="2s"
                                 values="0 12 12;360 12 12" repeatCount="indefinite"/>
-                <animate attributeName="stroke-dashoffset" dur="2s" 
+                <animate attributeName="stroke-dashoffset" dur="2s"
                         values="31.416;0;31.416" repeatCount="indefinite"/>
               </circle>
             </svg>

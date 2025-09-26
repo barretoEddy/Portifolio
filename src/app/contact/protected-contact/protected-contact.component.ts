@@ -44,7 +44,7 @@ export class ProtectedContactComponent implements OnInit {
   onSubmit() {
     if (this.contactForm.valid && this.currentUser) {
       this.isLoading = true;
-      
+
       const contactData = {
         ...this.contactForm.value,
         userInfo: {
@@ -70,18 +70,16 @@ export class ProtectedContactComponent implements OnInit {
         timestamp: contactData.timestamp,
         status: contactData.status
       };
-      
+
       existingMessages.push(newMessage);
       localStorage.setItem('contactMessages', JSON.stringify(existingMessages));
 
-      // Simular envio
-      console.log('Dados do contato:', contactData);
-      
+      // Simular envio - dados enviados com sucesso
       setTimeout(() => {
         this.isLoading = false;
         this.successMessage = 'Mensagem enviada com sucesso! Retornaremos em breve.';
         this.contactForm.reset();
-        
+
         // Limpar mensagem de sucesso após 5 segundos
         setTimeout(() => {
           this.successMessage = '';
@@ -92,6 +90,6 @@ export class ProtectedContactComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/'], { replaceUrl: true });
   }
 }

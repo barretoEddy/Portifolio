@@ -48,8 +48,6 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async fetchProjects(): Promise<void> {
     try {
-      console.log('Tentando carregar projetos do Sanity...');
-
       // Timeout para evitar loading infinito
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Timeout')), 2000);
@@ -58,11 +56,9 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
       const projectsPromise = this.sanityService.getProjects();
 
       const projects = await Promise.race([projectsPromise, timeoutPromise]) as Project[];
-      console.log('Projetos carregados do Sanity:', projects);
 
       if (projects && projects.length > 0) {
         this.projects = projects;
-        console.log('Usando projetos do Sanity');
 
         // Configurar animações após carregar conteúdo
         setTimeout(() => {
@@ -71,7 +67,7 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } catch (error) {
       console.error('Erro ao buscar projetos:', error);
-      console.log('Mantendo dados mock');
+      // Usando dados mock como fallback
     }
   }  private getMockProjects(): Project[] {
     return [

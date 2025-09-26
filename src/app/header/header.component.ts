@@ -92,8 +92,28 @@ export class HeaderComponent implements OnInit {
   // Método para fazer logout
   logout() {
     this.closeMobileMenu();
+
+    // Fazer logout
     this.authService.logout();
-    this.router.navigate(['/']);
+
+    // Limpeza adicional do localStorage (garantia extra)
+    setTimeout(() => {
+      // Limpar TODAS as chaves relacionadas ao Supabase
+      const keysToRemove = [];
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    }, 100);
+
+    // Navegar para home e garantir que a página seja recarregada
+    this.router.navigate(['/'], { replaceUrl: true }).then(() => {
+      // Opcional: recarregar a página para garantir limpeza completa
+      // window.location.reload();
+    });
   }
 
   trackByPath(index: number, link: any): string {

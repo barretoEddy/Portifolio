@@ -178,8 +178,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   setupRealTimeUpdates() {
     // Real-time updates para mensagens
     const messagesChannel = this.supabaseService.subscribeToMessages((payload) => {
-      console.log('Atualização em mensagens:', payload);
-
       // Recarregar dados quando houver mudanças
       this.loadRecentMessages();
       this.loadMessageStats();
@@ -187,8 +185,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Real-time updates para perfis
     const profilesChannel = this.supabaseService.subscribeToProfiles((payload) => {
-      console.log('Atualização em perfis:', payload);
-
       // Recarregar dados quando houver mudanças
       this.loadUserStats();
       this.loadRecentUsers();
@@ -197,7 +193,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/'], { replaceUrl: true });
   }
 
   // Utility methods
@@ -266,11 +262,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   viewAllUsers() {
     // Implementar navegação para página de todos os usuários
-    console.log('Navegar para todos os usuários');
   }
 
   viewAllMessages() {
     // Implementar navegação para página de todas as mensagens
-    console.log('Navegar para todas as mensagens');
   }
 }

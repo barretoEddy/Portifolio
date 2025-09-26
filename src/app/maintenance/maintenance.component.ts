@@ -47,21 +47,17 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
 
   // Método para alternar expansão do card
   toggleCardExpansion(index: number): void {
-    console.log('Toggle card expansion called for index:', index);
 
     const card = this.serviceCards.toArray()[index]?.nativeElement;
     if (!card) {
-      console.log('Card not found for index:', index);
       return;
     }
 
     const isExpanded = this.expandedCards.has(index);
-    console.log('Card is currently expanded:', isExpanded);
 
     if (isExpanded) {
       // Colapsar card
       this.expandedCards.delete(index);
-      console.log('Collapsing card');
 
       // Animar de volta para altura original (280px)
       gsap.to(card, {
@@ -78,7 +74,6 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
     } else {
       // Expandir card
       this.expandedCards.add(index);
-      console.log('Expanding card');
 
       // Trazer card para frente imediatamente
       card.style.zIndex = '10';
@@ -97,7 +92,6 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
         // Restaurar altura atual
         card.style.height = currentHeight + 'px';
 
-        console.log('Current height:', currentHeight, 'Auto height:', autoHeight);
 
         // Animar para nova altura
         gsap.to(card, {
@@ -108,7 +102,6 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
       }, 50); // Aumentei o delay para garantir que o Angular atualize
     }
 
-    console.log('Expanded cards:', Array.from(this.expandedCards));
   }
 
   // Verifica se card está expandido
@@ -129,8 +122,6 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
     const gridEl = this.servicesGrid.nativeElement;
     const cards = this.serviceCards.map(ref => ref.nativeElement);
 
-    console.log('Section element:', section);
-    console.log('Cards found:', cards.length);
 
     // Aguardar um frame adicional
     requestAnimationFrame(() => {
@@ -155,7 +146,6 @@ export class MaintenanceComponent implements AfterViewInit, OnDestroy {
           markers: false, // Debug - remover depois
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => console.log('ScrollTrigger Progress:', self.progress)
         }
       });
 

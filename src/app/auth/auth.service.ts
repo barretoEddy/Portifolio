@@ -114,7 +114,31 @@ export class AuthService {
       if (result.error) {
         console.error('Erro ao fazer logout:', result.error);
       }
-      // O estado será atualizado automaticamente pelo SupabaseService
+
+      // Garantir que o estado local também seja limpo
+      this.currentUserSubject.next(null);
+
+      // Função para limpar TODAS as chaves do Supabase
+      const clearSupabaseData = () => {
+        const keysToRemove = [];
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+      };
+
+      // Limpar dados do Supabase
+      clearSupabaseData();
+
+      // Limpar dados legados do localStorage (compatibilidade)
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('users');
+      localStorage.removeItem('contactMessages');
+
+      // O estado será atualizado automaticamente pelo SupabaseService também
     });
   }
 

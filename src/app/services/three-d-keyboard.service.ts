@@ -169,7 +169,6 @@ export class ThreeDKeyboardService implements OnDestroy {
         });
 
         URL.revokeObjectURL(url);
-        console.log(`🎨 Ícone SVG renderizado para ${techData.name}`);
         resolve(material);
       };
 
@@ -187,7 +186,6 @@ export class ThreeDKeyboardService implements OnDestroy {
           emissive: new THREE.Color(techData.color).multiplyScalar(0.08)
         });
 
-        console.log(`⚠️ Fallback para ${techData.name}`);
         resolve(material);
       };
 
@@ -247,16 +245,13 @@ export class ThreeDKeyboardService implements OnDestroy {
   }
 
   public async createScene(canvas: ElementRef<HTMLCanvasElement>, onBuild?: () => void): Promise<void> {
-    console.log('🚀 Iniciando createScene...');
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a192f, 0.01);
-    console.log('🌟 Scene criada');
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     this.camera.position.set(0, 3, 18); // Posição ajustada para melhor ângulo
     this.camera.lookAt(0, 0, 0);
-    console.log('📹 Camera posicionada para visualização otimizada dos cubos');
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas.nativeElement,
@@ -269,7 +264,6 @@ export class ThreeDKeyboardService implements OnDestroy {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NoToneMapping;
-    console.log('🎨 Renderer criado:', this.renderer.domElement);
 
     // Iluminação otimizada para cubos 3D
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // Mais luz ambiente
@@ -291,41 +285,32 @@ export class ThreeDKeyboardService implements OnDestroy {
     topLight.position.set(0, 30, 0);
     this.scene.add(topLight);
 
-    console.log('💡 Sistema de iluminação 3D criado');
 
     // this.keyGeometry = this.createKeyGeometry(); // Removendo geometria customizada temporariamente
-    console.log('🔲 Usando BoxGeometry padrão');
 
     this.keyboardGroup = new THREE.Group();
-    console.log('🏗️ Grupo do teclado criado');
 
     // Aguardar criação das texturas
     await this.createKeyboardLayout();
-    console.log('⌨️ Layout do teclado criado');
 
     // Posicionamento do teclado na frente do texto
     this.keyboardGroup.rotation.x = -Math.PI / 8; // Rotação mais sutil
     this.keyboardGroup.position.set(0, -2, 5); // Mais para frente
     this.scene.add(this.keyboardGroup);
-    console.log('📦 Grupo posicionado na frente');
 
     this.animate();
-    console.log('🎬 Animação iniciada');
 
     if (onBuild) {
       setTimeout(() => {
-        console.log('✅ Callback onBuild executado');
         onBuild();
       }, 500);
     }
   }  // Anima montagem das teclas uma a uma
   public animateKeyboardBuild(): void {
-    console.log('🎯 Animando build do teclado. Teclas disponíveis:', this.keys.length);
 
     this.keys.forEach((key, i) => {
       key.scale.set(0, 0, 0);
       key.visible = true;
-      console.log(`🔧 Tecla ${i} configurada para animação`);
     });
 
     gsap.to(this.keys.map(k => k.scale), {
@@ -336,11 +321,9 @@ export class ThreeDKeyboardService implements OnDestroy {
       duration: 0.6,
       ease: 'back.out(1.7)',
       onStart: () => {
-        console.log('▶️ Animação de escala iniciada');
         this.keys.forEach(k => k.visible = true);
       },
       onComplete: () => {
-        console.log('✅ Animação de escala completada');
       }
     });
   }
@@ -372,7 +355,6 @@ export class ThreeDKeyboardService implements OnDestroy {
   }
   // 3. APARÊNCIA: Teclado com texturas SVG das tecnologias
   private async createKeyboardLayout(): Promise<void> {
-    console.log('🔨 Iniciando createKeyboardLayout com ícones SVG...');
 
     const keySize = 3.2;
     const keyDepth = 1.2; // Profundidade dos cubos
@@ -403,7 +385,6 @@ export class ThreeDKeyboardService implements OnDestroy {
           index: keyIndex
         };
 
-        console.log(`⚡ Cubo ${keyIndex} (${techStack[keyIndex].name}) com ícone SVG criado`);
 
         this.keys.push(key);
         this.keyboardGroup.add(key);
@@ -411,7 +392,6 @@ export class ThreeDKeyboardService implements OnDestroy {
       }
     }
 
-    console.log('✅ Todos os cubos 3D com ícones SVG criados:', this.keys.length);
   }
   // 4. ANIMAÇÃO: Lógica de onda com efeitos de brilho nas texturas
   private animate(): void {

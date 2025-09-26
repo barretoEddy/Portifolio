@@ -140,6 +140,30 @@ export class SupabaseService {
 
   async signOut(): Promise<{ error: any }> {
     const { error } = await this.supabase.auth.signOut();
+
+    if (!error) {
+      // Limpar estado dos observables
+      this._currentUser.next(null);
+      this._currentProfile.next(null);
+      this._session.next(null);
+
+      // Limpar TODAS as chaves do Supabase do localStorage
+      const keysToRemove = [];
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+          keysToRemove.push(key);
+        }
+      }
+
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // Limpar dados legados da aplicação
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('users');
+      localStorage.removeItem('contactMessages');
+    }
+
     return { error };
   }
 

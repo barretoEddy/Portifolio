@@ -158,7 +158,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
         });
 
         URL.revokeObjectURL(url);
-        console.log(`🎨 Ícone SVG renderizado para ${techData.name}`);
         resolve(material);
       };
 
@@ -176,7 +175,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
           emissive: new THREE.Color(techData.color).multiplyScalar(0.08)
         });
 
-        console.log(`⚠️ Fallback para ${techData.name}`);
         resolve(material);
       };
 
@@ -235,7 +233,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
 
   // Criar cena 3D principal
   public async createScene(canvas: ElementRef<HTMLCanvasElement>, onBuild?: () => void): Promise<void> {
-    console.log('🚀 Iniciando createScene com ícones SVG...');
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.Fog(0x0a192f, 20, 100);
@@ -292,7 +289,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
 
   // Criar teclado com layout 3x3 e ícones SVG
   private async createKeyboardLayout(): Promise<void> {
-    console.log('🔨 Criando teclado com ícones SVG...');
 
     const keySize = 3.2;
     const keyDepth = 1.2;
@@ -321,7 +317,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
           index: keyIndex
         };
 
-        console.log(`⚡ Cubo ${keyIndex} (${techStack[keyIndex].name}) com ícone SVG criado`);
 
         this.keys.push(key);
         this.keyboardGroup.add(key);
@@ -329,7 +324,6 @@ export class ThreeDKeyboardNewService implements OnDestroy {
       }
     }
 
-    console.log('✅ Todos os cubos 3D com ícones SVG criados:', this.keys.length);
   }
 
   private animate(): void {
