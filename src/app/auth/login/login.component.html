@@ -2,7 +2,7 @@
   <div class="auth-background">
     <div class="auth-overlay"></div>
   </div>
-  
+
   <div class="auth-content">
     <!-- Header -->
     <div class="auth-header">
@@ -67,10 +67,19 @@
         {{ errorMessage }}
       </div>
 
+      <!-- Success Message -->
+      <div class="success-message" *ngIf="successMessage">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+        {{ successMessage }}
+      </div>
+
       <!-- Submit Button -->
-      <button 
-        type="submit" 
-        class="btn-primary" 
+      <button
+        type="submit"
+        class="btn-primary"
         [disabled]="loginForm.invalid || isLoading"
         [class.loading]="isLoading"
       >
@@ -88,6 +97,51 @@
         </span>
       </button>
 
+      <!-- Password Reset -->
+      <div class="password-reset-section">
+        <button
+          type="button"
+          class="btn-link"
+          (click)="togglePasswordReset()"
+          *ngIf="!showPasswordReset"
+        >
+          Esqueceu sua senha?
+        </button>
+
+        <div class="password-reset-form" *ngIf="showPasswordReset">
+          <p class="reset-instruction">
+            Digite seu email para receber instruções de recuperação:
+          </p>
+
+          <button
+            type="button"
+            class="btn-primary-small"
+            (click)="resetPassword()"
+            [disabled]="isResettingPassword || !email?.value || email?.invalid"
+            [class.loading]="isResettingPassword"
+          >
+            <span *ngIf="!isResettingPassword">Enviar Email de Recuperação</span>
+            <span *ngIf="isResettingPassword">
+              <svg class="spinner-small" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                  <animateTransform attributeName="transform" type="rotate" dur="2s" values="0 12 12;360 12 12" repeatCount="indefinite"/>
+                  <animate attributeName="stroke-dashoffset" dur="2s" values="31.416;0;31.416" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+              Enviando...
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="btn-link-small"
+            (click)="togglePasswordReset()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+
       <!-- Divider -->
       <div class="auth-divider">
         <span>ou</span>
@@ -102,7 +156,7 @@
     <!-- Admin Hint -->
     <div class="admin-hint" *ngIf="!isAdminAccess">
       <p>
-        <strong>Para desenvolvedores:</strong> Use o email 
+        <strong>Para desenvolvedores:</strong> Use o email
         <code>admin&#64;eduardobarreto.dev</code> para acessar o dashboard administrativo.
       </p>
     </div>

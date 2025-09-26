@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, from, map, switchMap } from 'rxjs';
+import { SupabaseService, Profile } from '../services/supabase.service';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
+// Interface compatibility - mantém compatibilidade com componentes existentes
 export interface User {
   id: string;
   fullName: string;
@@ -14,41 +17,68 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthService {
+  private supabaseService = inject(SupabaseService);
+
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
   constructor() {
-    // Verificar se existe usuário no localStorage
-    const storedUser = localStorage.getItem('currentUser');
-    this.currentUserSubject = new BehaviorSubject<User | null>(
-      storedUser ? JSON.parse(storedUser) : null
-    );
+    this.currentUserSubject = new BehaviorSubject<User | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
+
+    // Subscrever aos observables do SupabaseService
+    this.supabaseService.currentProfile.subscribe(profile => {
+      if (profile) {
+        const user = this.mapProfileToUser(profile);
+        this.currentUserSubject.next(user);
+      } else {
+        this.currentUserSubject.next(null);
+      }
+    });
   }
 
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
 
+  // Método para mapear Profile do Supabase para User local (compatibilidade)
+  private mapProfileToUser(profile: Profile): User {
+    const email = this.getCurrentUserEmail() || `${profile.id}@supabase.user`;
+
+    return {
+      id: profile.id,
+      fullName: profile.full_name,
+      email: email,
+      company: profile.company,
+      role: profile.role,
+      createdAt: new Date(profile.created_at)
+    };
+  }
+
+  // Método para obter email do usuário atual do Supabase
+  private getCurrentUserEmail(): string | null {
+    const supabaseUser = this.supabaseService.getCurrentUser();
+    return supabaseUser?.email || null;
+  }
+
   login(email: string, password: string): Observable<User> {
-    return new Observable(observer => {
-      // Simular API de login
-      setTimeout(() => {
-        // Verificar se usuário existe no localStorage (simulação)
-        const users = this.getStoredUsers();
-        const user = users.find(u => u.email === email);
-        
-        if (user) {
-          // Simular autenticação bem-sucedida
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          this.currentUserSubject.next(user);
-          observer.next(user);
-          observer.complete();
-        } else {
-          observer.error('Email ou senha inválidos');
+    return from(this.supabaseService.signIn(email, password)).pipe(
+      switchMap(result => {
+        if (result.error) {
+          throw new Error(result.error.message || 'Email ou senha inválidos');
         }
-      }, 1000);
-    });
+
+        // Aguardar o perfil ser carregado automaticamente pelo SupabaseService
+        return this.currentUser.pipe(
+          map(user => {
+            if (!user) {
+              throw new Error('Erro ao carregar dados do usuário');
+            }
+            return user;
+          })
+        );
+      })
+    );
   }
 
   register(userData: {
@@ -57,59 +87,93 @@ export class AuthService {
     company?: string;
     password: string;
   }): Observable<User> {
-    return new Observable(observer => {
-      // Simular API de registro
-      setTimeout(() => {
-        const users = this.getStoredUsers();
-        
-        // Verificar se email já existe
-        if (users.find(u => u.email === userData.email)) {
-          observer.error('Email já cadastrado');
-          return;
+    return from(this.supabaseService.signUp(userData.email, userData.password, {
+      full_name: userData.fullName,
+      company: userData.company
+    })).pipe(
+      switchMap(result => {
+        if (result.error) {
+          throw new Error(result.error.message || 'Erro ao criar conta');
         }
 
-        // Criar novo usuário
-        const newUser: User = {
-          id: Date.now().toString(),
-          fullName: userData.fullName,
-          email: userData.email,
-          company: userData.company,
-          role: userData.email === 'admin@eduardobarreto.dev' ? 'admin' : 'user', // Define admin baseado no email
-          createdAt: new Date()
-        };
-
-        // Salvar no localStorage
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('currentUser', JSON.stringify(newUser));
-        
-        this.currentUserSubject.next(newUser);
-        observer.next(newUser);
-        observer.complete();
-      }, 1500);
-    });
+        // Aguardar o perfil ser carregado automaticamente
+        return this.currentUser.pipe(
+          map(user => {
+            if (!user) {
+              throw new Error('Erro ao carregar dados do usuário');
+            }
+            return user;
+          })
+        );
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
+    this.supabaseService.signOut().then(result => {
+      if (result.error) {
+        console.error('Erro ao fazer logout:', result.error);
+      }
+      // O estado será atualizado automaticamente pelo SupabaseService
+    });
   }
 
   isLoggedIn(): boolean {
-    return !!this.currentUserValue;
+    return this.supabaseService.isAuthenticated();
   }
 
   isAdmin(): boolean {
-    const user = this.currentUserValue;
-    return user?.role === 'admin' || false;
+    return this.supabaseService.isAdmin();
   }
 
   hasAdminAccess(): boolean {
     return this.isLoggedIn() && this.isAdmin();
   }
 
-  private getStoredUsers(): User[] {
-    const users = localStorage.getItem('users');
-    return users ? JSON.parse(users) : [];
+  // Método para resetar senha (novo)
+  resetPassword(email: string): Observable<boolean> {
+    return from(this.supabaseService.resetPassword(email)).pipe(
+      map(result => {
+        if (result.error) {
+          throw new Error(result.error.message || 'Erro ao resetar senha');
+        }
+        return true;
+      })
+    );
+  }
+
+  // Método para atualizar perfil (novo)
+  updateProfile(updates: {
+    fullName?: string;
+    company?: string;
+  }): Observable<User> {
+    const profileUpdates: Partial<Profile> = {};
+
+    if (updates.fullName) profileUpdates.full_name = updates.fullName;
+    if (updates.company) profileUpdates.company = updates.company;
+
+    return from(this.supabaseService.updateProfile(profileUpdates)).pipe(
+      map(result => {
+        if (result.error) {
+          throw new Error(result.error.message || 'Erro ao atualizar perfil');
+        }
+
+        if (!result.data) {
+          throw new Error('Erro ao atualizar perfil');
+        }
+
+        return this.mapProfileToUser(result.data);
+      })
+    );
+  }
+
+  // Compatibilidade com localStorage (para migração gradual) - OPCIONAL
+  private migrateFromLocalStorage(): void {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser && !this.isLoggedIn()) {
+      // Se existe usuário no localStorage mas não no Supabase, limpar
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('users');
+    }
   }
 }

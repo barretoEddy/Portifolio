@@ -3,98 +3,194 @@
   <!-- Header -->
   <header class="dashboard-header">
     <div class="header-content">
-      <h1 class="dashboard-title">Dashboard Administrativo</h1>
-      <div class="user-info">
-        <span class="welcome-text">Bem-vindo, {{ currentUser?.fullName }}</span>
+      <div class="header-left">
+        <h1 class="dashboard-title">Dashboard Administrativo</h1>
+        <p class="dashboard-subtitle">Bem-vindo, {{ currentProfile?.full_name || currentUser?.fullName }}</p>
+      </div>
+      <div class="header-actions">
         <button class="logout-btn" (click)="logout()">Sair</button>
       </div>
     </div>
   </header>
 
-  <!-- Stats Cards -->
-  <section class="stats-section">
-    <div class="stats-grid">
-      <div class="stat-card">
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Quick Stats -->
+    <section class="quick-stats">
+      <div class="stat-card stat-users" [class.loading]="isLoadingUsers">
         <div class="stat-icon">👥</div>
         <div class="stat-content">
-          <h3 class="stat-number">{{ totalUsers }}</h3>
-          <p class="stat-label">Total de Usuários</p>
+          <h3 class="stat-number">{{ stats.totalUsers }}</h3>
+          <p class="stat-label">Usuários</p>
         </div>
       </div>
-      
-      <div class="stat-card">
+
+      <div class="stat-card stat-messages" [class.loading]="isLoadingStats">
         <div class="stat-icon">💬</div>
         <div class="stat-content">
-          <h3 class="stat-number">{{ totalMessages }}</h3>
-          <p class="stat-label">Total de Mensagens</p>
+          <h3 class="stat-number">{{ stats.totalMessages }}</h3>
+          <p class="stat-label">Mensagens</p>
         </div>
       </div>
-      
-      <div class="stat-card highlight">
+
+      <div class="stat-card stat-new highlight" [class.loading]="isLoadingStats">
         <div class="stat-icon">🔔</div>
         <div class="stat-content">
-          <h3 class="stat-number">{{ newMessages }}</h3>
-          <p class="stat-label">Mensagens Novas</p>
+          <h3 class="stat-number">{{ stats.newMessages }}</h3>
+          <p class="stat-label">Novas</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Content Grid -->
-  <div class="content-grid">
-    <!-- Recent Users -->
-    <section class="content-card">
-      <h2 class="section-title">Usuários Recentes</h2>
-      <div class="users-list">
-        <p class="empty-state" *ngIf="recentUsers.length === 0">Nenhum usuário cadastrado ainda.</p>
-        <div class="user-item" *ngFor="let user of recentUsers">
-          <div class="user-avatar">{{ user.fullName.charAt(0) }}</div>
-          <div class="user-details">
-            <h4 class="user-name">{{ user.fullName }}</h4>
-            <p class="user-email">{{ user.email }}</p>
-            <p class="user-company" *ngIf="user.company">{{ user.company }}</p>
-            <span class="user-role" [class]="user.role === 'admin' ? 'role-admin' : 'role-user'">
-              {{ user.role === 'admin' ? 'Administrador' : 'Usuário' }}
-            </span>
-          </div>
-          <div class="user-date">
-            {{ user.createdAt | date:'dd/MM/yy' }}
-          </div>
+      <!-- Additional Stats -->
+      <div class="stat-card stat-read" [class.loading]="isLoadingStats">
+        <div class="stat-icon">📖</div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.readMessages }}</h3>
+          <p class="stat-label">Lidas</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-replied" [class.loading]="isLoadingStats">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.repliedMessages }}</h3>
+          <p class="stat-label">Respondidas</p>
         </div>
       </div>
     </section>
 
-    <!-- Recent Messages -->
-    <section class="content-card">
-      <h2 class="section-title">Mensagens Recentes</h2>
-      <div class="messages-list">
-        <p class="empty-state" *ngIf="recentMessages.length === 0">Nenhuma mensagem recebida ainda.</p>
-        <div class="message-item" *ngFor="let message of recentMessages" [class.unread]="message.status === 'new'">
-          <div class="message-header">
-            <h4 class="message-subject">{{ message.subject }}</h4>
-            <span class="message-status" [class]="getStatusClass(message.status)">
-              {{ message.status === 'new' ? 'Nova' : message.status === 'read' ? 'Lida' : 'Respondida' }}
-            </span>
+    <!-- Dynamic Grid -->
+    <section class="dashboard-grid">
+      <!-- Admin Profile Card -->
+      <div class="grid-card admin-profile">
+        <div class="card-header">
+          <h3>Administrador</h3>
+        </div>
+        <div class="profile-content">
+          <div class="profile-avatar">
+            {{ getInitials(currentProfile?.full_name || currentUser?.fullName || 'Admin') }}
           </div>
-          <div class="message-meta">
-            <span class="message-from">{{ message.user.fullName }} ({{ message.user.email }})</span>
-            <span class="message-date">{{ message.timestamp | date:'dd/MM/yy HH:mm' }}</span>
+          <div class="profile-info">
+            <h4>{{ currentProfile?.full_name || currentUser?.fullName || 'Administrador' }}</h4>
+            <p>{{ currentUser?.email || 'admin@sistema.com' }}</p>
+            <span class="profile-role">{{ currentProfile?.role || 'Admin' }}</span>
           </div>
-          <p class="message-preview">{{ message.message | slice:0:100 }}...</p>
-          <div class="message-details">
-            <span class="project-type">Tipo: {{ message.projectType }}</span>
-            <span class="budget" *ngIf="message.budget">Orçamento: {{ message.budget }}</span>
+        </div>
+      </div>
+
+      <!-- Recent Users Card -->
+      <div class="grid-card users-card">
+        <div class="card-header">
+          <h3>Usuários Recentes</h3>
+          <span class="card-count">{{ recentUsers.length }}</span>
+        </div>
+        <div class="card-content" [class.loading]="isLoadingUsers">
+          <div class="users-list" *ngIf="recentUsers.length > 0 && !isLoadingUsers; else noUsers">
+            <div class="user-item" *ngFor="let user of recentUsers; trackBy: trackByUserId">
+              <div class="user-avatar">{{ getInitials(user.full_name) }}</div>
+              <div class="user-details">
+                <h4 class="user-name">{{ user.full_name }}</h4>
+                <p class="user-company" *ngIf="user.company">{{ user.company }}</p>
+                <span class="user-role" [class]="user.role === 'admin' ? 'role-admin' : 'role-user'">
+                  {{ user.role === 'admin' ? 'Admin' : 'Usuário' }}
+                </span>
+              </div>
+              <div class="user-date">
+                {{ formatDate(user.created_at) }}
+              </div>
+            </div>
           </div>
-          <div class="message-actions">
-            <button class="btn-action btn-read" *ngIf="message.status === 'new'" (click)="markAsRead(message.id)">
-              Marcar como Lida
+          <ng-template #noUsers>
+            <div class="empty-state" *ngIf="!isLoadingUsers">
+              <p>Nenhum usuário cadastrado ainda.</p>
+            </div>
+            <div class="loading-state" *ngIf="isLoadingUsers">
+              <p>Carregando usuários...</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Messages Card -->
+      <div class="grid-card messages-card">
+        <div class="card-header">
+          <h3>Mensagens Recentes</h3>
+          <span class="card-count">{{ recentMessages.length }}</span>
+        </div>
+        <div class="card-content" [class.loading]="isLoadingMessages">
+          <div class="messages-list" *ngIf="recentMessages.length > 0 && !isLoadingMessages; else noMessages">
+            <div class="message-item" *ngFor="let message of recentMessages; trackBy: trackByMessageId"
+                 [class.unread]="message.status === 'new'">
+              <div class="message-header">
+                <h4 class="message-subject">{{ message.subject }}</h4>
+                <span class="message-status" [class]="getStatusClass(message.status)">
+                  {{ getStatusText(message.status) }}
+                </span>
+              </div>
+              <div class="message-meta">
+                <span class="message-from">{{ message.profiles?.full_name || 'Usuário' }}</span>
+                <span class="message-date">{{ formatDate(message.created_at) }}</span>
+              </div>
+              <p class="message-preview">{{ truncateText(message.message, 80) }}</p>
+              <div class="message-info" *ngIf="message.project_type || message.budget">
+                <span class="message-tag" *ngIf="message.project_type">{{ message.project_type }}</span>
+                <span class="message-budget" *ngIf="message.budget">{{ message.budget }}</span>
+              </div>
+              <div class="message-actions">
+                <button class="btn-action btn-read" *ngIf="message.status === 'new'" (click)="markAsRead(message.id)">
+                  Marcar como Lida
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteMessage(message.id)">
+                  Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+          <ng-template #noMessages>
+            <div class="empty-state" *ngIf="!isLoadingMessages">
+              <p>Nenhuma mensagem recebida ainda.</p>
+            </div>
+            <div class="loading-state" *ngIf="isLoadingMessages">
+              <p>Carregando mensagens...</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="grid-card actions-card">
+        <div class="card-header">
+          <h3>Ações Rápidas</h3>
+        </div>
+        <div class="card-content">
+          <div class="action-buttons">
+            <button class="action-btn" (click)="refreshData()">
+              <span class="action-icon">�</span>
+              <span class="action-label">Atualizar</span>
             </button>
-            <button class="btn-action btn-delete" (click)="deleteMessage(message.id)">
-              Excluir
+            <button class="action-btn" (click)="viewAllUsers()">
+              <span class="action-icon">👥</span>
+              <span class="action-label">Ver Todos Usuários</span>
+            </button>
+            <button class="action-btn" (click)="viewAllMessages()">
+              <span class="action-icon">💬</span>
+              <span class="action-label">Ver Todas Mensagens</span>
+            </button>
+            <button class="action-btn">
+              <span class="action-icon">�</span>
+              <span class="action-label">Relatórios</span>
+            </button>
+            <button class="action-btn">
+              <span class="action-icon">⚙️</span>
+              <span class="action-label">Configurações</span>
+            </button>
+            <button class="action-btn">
+              <span class="action-icon">📈</span>
+              <span class="action-label">Analytics</span>
             </button>
           </div>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 </div>
