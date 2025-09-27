@@ -2,6 +2,12 @@
 
 .main-content {
   min-height: 100vh;
+  padding-top: 110px; /* Espaço para o header fixo */
+}
+
+/* Para a home, remover o padding pois já tem seu próprio sistema */
+.main-content.home-page {
+  padding-top: 0;
 }
 
 main > section {

@@ -1,6 +1,14 @@
 <header [class.scrolled]="headerScrolled()">
-  <nav class="container">
-    <a href="#title" class="logo" (click)="closeMobileMenu()"><img src="img/Logo.png" alt="" style="width: auto; height: 60px;"></a>
+  <nav class="container" [class.no-logo]="!isHomePage()">
+    <!-- Logo só aparece na home -->
+    <a *ngIf="isHomePage()" 
+       href="#title" 
+       class="logo" 
+       (click)="closeMobileMenu()">
+      <img src="img/Logo.png" alt="Eduardo Barreto" style="width: auto; height: 60px;">
+    </a>
+
+    <!-- Menu icon -->
     <div class="menu-icon" (click)="toggleMobileMenu()">
       <svg *ngIf="!mobileMenuOpen()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />

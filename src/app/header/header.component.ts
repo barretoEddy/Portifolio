@@ -1,8 +1,9 @@
 import { Component, ChangeDetectionStrategy, HostListener, signal, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { SupabaseService } from '../services/supabase.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -22,6 +23,7 @@ export class HeaderComponent implements OnInit {
   isLoggedIn = signal(false);
   isAdmin = signal(false);
   userFullName = signal<string | null>(null);
+  isHomePage = signal(true); // Controla se mostra o logo
 
   // Texto dinâmico do botão baseado no estado
   buttonText = computed(() => {
@@ -52,6 +54,24 @@ export class HeaderComponent implements OnInit {
   });
 
   ngOnInit() {
+    // Detectar mudanças de rota para controlar o logo
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      // Logo aparece na home e no blog
+      const showLogo = event.urlAfterRedirects === '/' || 
+                      event.urlAfterRedirects === '' || 
+                      event.urlAfterRedirects.startsWith('/blog');
+      this.isHomePage.set(showLogo);
+    });
+
+    // Verificar rota inicial
+    const currentUrl = this.router.url;
+    const showLogo = currentUrl === '/' || 
+                    currentUrl === '' || 
+                    currentUrl.startsWith('/blog');
+    this.isHomePage.set(showLogo);
+
     // Observar mudanças no estado de autenticação do AuthService
     this.authService.currentUser.subscribe(user => {
       this.isLoggedIn.set(!!user);

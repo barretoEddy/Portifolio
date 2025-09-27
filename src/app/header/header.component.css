@@ -22,6 +22,24 @@ nav {
   height: 60px; /* Altura fixa para melhor alinhamento */
 }
 
+/* Quando não há logo, centralizar a navegação */
+nav.no-logo {
+  justify-content: center;
+}
+
+/* No mobile, quando não há logo, ajustar menu icon */
+@media (max-width: 768px) {
+  nav.no-logo {
+    justify-content: flex-end;
+    position: relative;
+  }
+  
+  nav.no-logo .nav-links {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .logo {
   font-weight: 700;
   font-size: 1.5rem;

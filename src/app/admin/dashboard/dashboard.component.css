@@ -1,9 +1,10 @@
 /* Dashboard Container */
 .dashboard-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 110px); /* Ajusta altura considerando o header */
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   color: #2d3436;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  padding-top: 0; /* Remove padding pois já vem do app */
 }
 
 /* Header */
@@ -12,9 +13,8 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding: 1.5rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative; /* Mudado de sticky para relative */
+  z-index: 10; /* Reduzido z-index para não conflitar com header global */
 }
 
 .header-content {
