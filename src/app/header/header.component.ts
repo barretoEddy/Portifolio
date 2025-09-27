@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, HostListener, signal, inject, compu
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { SupabaseService } from '../services/supabase.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
+  private supabaseService = inject(SupabaseService);
   private router = inject(Router);
 
   headerScrolled = signal(false);
@@ -30,18 +32,39 @@ export class HeaderComponent implements OnInit {
     return 'Contato';
   });
 
-  // Agora os caminhos são para rotas do Angular
-  navLinks = [
-    { path: '/', label: 'Início', action: 'scrollToTop' },
-    { path: '/blog', label: 'Blog', action: null },
-  ];
+  // Links dinâmicos baseados no estado de login
+  navLinks = computed(() => {
+    const baseLinks = [
+      { path: '/', label: 'Início', action: 'scrollToTop' },
+      { path: '/blog', label: 'Blog', action: null },
+    ];
+
+    if (this.isLoggedIn()) {
+      // Adicionar links específicos para usuários logados
+      return [
+        ...baseLinks,
+        { path: '/protected-contact', label: 'Contato', action: null },
+        ...(this.isAdmin() ? [{ path: '/admin/dashboard', label: 'Dashboard', action: null }] : [])
+      ];
+    }
+
+    return baseLinks;
+  });
 
   ngOnInit() {
-    // Observar mudanças no estado de autenticação
+    // Observar mudanças no estado de autenticação do AuthService
     this.authService.currentUser.subscribe(user => {
       this.isLoggedIn.set(!!user);
       this.userFullName.set(user?.fullName || null);
       this.isAdmin.set(this.authService.isAdmin());
+    });
+
+    // Também observar o Supabase service para sincronizar
+    this.supabaseService.currentUser.subscribe(user => {
+      if (user && !this.isLoggedIn()) {
+        this.isLoggedIn.set(true);
+        this.userFullName.set(user.user_metadata?.['full_name'] || user.email || null);
+      }
     });
   }
 
@@ -90,30 +113,37 @@ export class HeaderComponent implements OnInit {
   }
 
   // Método para fazer logout
-  logout() {
+  async logout() {
     this.closeMobileMenu();
 
-    // Fazer logout
-    this.authService.logout();
+    try {
+      // Fazer logout no Supabase (AuthService vai observar e se atualizar automaticamente)
+      const result = await this.supabaseService.signOut();
 
-    // Limpeza adicional do localStorage (garantia extra)
-    setTimeout(() => {
-      // Limpar TODAS as chaves relacionadas ao Supabase
-      const keysToRemove = [];
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth'))) {
-          keysToRemove.push(key);
-        }
+      if (result.error) {
+        console.error('Erro no logout:', result.error);
+        throw result.error;
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-    }, 100);
 
-    // Navegar para home e garantir que a página seja recarregada
-    this.router.navigate(['/'], { replaceUrl: true }).then(() => {
-      // Opcional: recarregar a página para garantir limpeza completa
-      // window.location.reload();
-    });
+      // Aguardar um momento para os observables se atualizarem
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Navegar para home
+      await this.router.navigate(['/'], { replaceUrl: true });
+
+    } catch (error) {
+      console.error('Erro durante logout:', error);
+
+      // Em caso de erro, forçar limpeza local
+      this.isLoggedIn.set(false);
+      this.userFullName.set(null);
+      this.isAdmin.set(false);
+
+      // Forçar logout no AuthService também
+      this.authService.logout();
+
+      await this.router.navigate(['/'], { replaceUrl: true });
+    }
   }
 
   trackByPath(index: number, link: any): string {

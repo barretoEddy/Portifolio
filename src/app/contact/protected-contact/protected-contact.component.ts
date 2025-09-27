@@ -86,9 +86,4 @@ export class ProtectedContactComponent implements OnInit {
       }
     }
   }
-
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/'], { replaceUrl: true });
-  }
 }

@@ -1,5 +1,9 @@
 /* src/app/app.css (ATUALIZAÇÃO FINAL) */
 
+.main-content {
+  min-height: 100vh;
+}
+
 main > section {
   position: relative;
   padding: 100px 0;

@@ -64,6 +64,13 @@ nav {
   transform: translateY(-2px);
 }
 
+.nav-links a.active {
+  color: var(--color-accent);
+  background: rgba(100, 255, 218, 0.15);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
 .nav-links a:active {
   transform: translateY(0px);
 }

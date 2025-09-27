@@ -10,13 +10,21 @@
       </svg>
     </div>
     <ul class="nav-links" [class.active]="mobileMenuOpen()">
-      <li *ngFor="let link of navLinks">
-        <a [routerLink]="link.path" (click)="handleNavClick(link)">{{ link.label }}</a>
+      <li *ngFor="let link of navLinks(); trackBy: trackByPath">
+        <a [routerLink]="link.path"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: link.path === '/'}"
+           (click)="handleNavClick(link)">
+          {{ link.label }}
+        </a>
       </li>
 
       <!-- Mostrar logout se estiver logado -->
       <li *ngIf="isLoggedIn()">
-        <button class="logout-button" (click)="logout()">
+        <button class="logout-button"
+                (click)="logout()"
+                type="button"
+                title="Fazer logout">
           <span class="button-text">Sair</span>
           <span class="button-icon">🚪</span>
         </button>
