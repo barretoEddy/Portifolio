@@ -146,6 +146,7 @@ Requisitos importantes:
 6. As palavras-chave sugeridas devem ser relevantes e específicas
 7. O conteúdo deve ser original e envolvente
 8. Inclua exemplos práticos quando relevante
+9. Inclua exemplos de codigo se aplicável utilizando aspas triplas para blocos de código
 
 Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
 

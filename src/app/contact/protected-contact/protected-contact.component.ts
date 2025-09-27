@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService, User } from '../../auth/auth.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,10 +17,12 @@ export class ProtectedContactComponent implements OnInit {
   currentUser: User | null = null;
   isLoading = false;
   successMessage = '';
+  errorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private supabaseService: SupabaseService,
     private router: Router
   ) {
     this.contactForm = this.formBuilder.group({
@@ -41,50 +44,46 @@ export class ProtectedContactComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.contactForm.valid && this.currentUser) {
       this.isLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
 
-      const contactData = {
-        ...this.contactForm.value,
-        userInfo: {
-          name: this.currentUser.fullName,
-          email: this.currentUser.email,
-          company: this.currentUser.company
-        },
-        timestamp: new Date(),
-        id: Date.now().toString(),
-        status: 'new'
-      };
+      try {
+        // Preparar dados para o Supabase
+        const messageData = {
+          subject: this.contactForm.value.subject,
+          message: this.contactForm.value.message,
+          project_type: this.contactForm.value.projectType,
+          budget: this.contactForm.value.budget,
+          deadline: this.contactForm.value.deadline
+        };
 
-      // Salvar a mensagem no localStorage para o dashboard admin
-      const existingMessages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
-      const newMessage = {
-        id: contactData.id,
-        user: this.currentUser,
-        subject: contactData.subject,
-        projectType: contactData.projectType,
-        budget: contactData.budget,
-        deadline: contactData.deadline,
-        message: contactData.message,
-        timestamp: contactData.timestamp,
-        status: contactData.status
-      };
+        console.log('📤 Enviando mensagem para Supabase:', messageData);
 
-      existingMessages.push(newMessage);
-      localStorage.setItem('contactMessages', JSON.stringify(existingMessages));
+        // Enviar para o Supabase
+        const result = await this.supabaseService.createMessage(messageData);
 
-      // Simular envio - dados enviados com sucesso
-      setTimeout(() => {
+        if (result.error) {
+          console.error('❌ Erro ao enviar mensagem:', result.error);
+          this.errorMessage = 'Erro ao enviar mensagem. Tente novamente.';
+        } else {
+          console.log('✅ Mensagem enviada com sucesso:', result.data);
+          this.successMessage = 'Mensagem enviada com sucesso! Retornaremos em breve.';
+          this.contactForm.reset();
+
+          // Limpar mensagem de sucesso após 5 segundos
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 5000);
+        }
+      } catch (error) {
+        console.error('❌ Erro inesperado:', error);
+        this.errorMessage = 'Erro inesperado. Tente novamente.';
+      } finally {
         this.isLoading = false;
-        this.successMessage = 'Mensagem enviada com sucesso! Retornaremos em breve.';
-        this.contactForm.reset();
-
-        // Limpar mensagem de sucesso após 5 segundos
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 5000);
-      }, 2000);
+      }
     }
   }
 

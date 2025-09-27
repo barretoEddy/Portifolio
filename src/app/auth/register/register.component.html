@@ -2,7 +2,7 @@
   <div class="auth-background">
     <div class="auth-overlay"></div>
   </div>
-  
+
   <div class="auth-content">
     <!-- Header -->
     <div class="auth-header">
@@ -64,9 +64,7 @@
           <span *ngIf="registerForm.get('email')?.errors?.['required']">Email é obrigatório</span>
           <span *ngIf="registerForm.get('email')?.errors?.['email']">Digite um email válido</span>
         </div>
-        <div class="form-hint" *ngIf="!isAdminAccess">
-          💡 Use <strong>admin&#64;eduardobarreto.dev</strong> para ter acesso administrativo
-        </div>
+
       </div>
 
       <!-- Company Field -->
@@ -95,8 +93,8 @@
         <!-- Password Strength -->
         <div class="password-strength" *ngIf="registerForm.get('password')?.value">
           <div class="strength-bar">
-            <div 
-              class="strength-fill" 
+            <div
+              class="strength-fill"
               [class]="'strength-' + getPasswordStrength()"
             ></div>
           </div>
@@ -156,9 +154,9 @@
       </div>
 
       <!-- Submit Button -->
-      <button 
-        type="submit" 
-        class="btn-primary" 
+      <button
+        type="submit"
+        class="btn-primary"
         [disabled]="registerForm.invalid || isLoading"
         [class.loading]="isLoading"
       >

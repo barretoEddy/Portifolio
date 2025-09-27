@@ -49,22 +49,48 @@ export class SupabaseService {
   public session = this._session.asObservable();
 
   constructor() {
-    // Inicializar cliente Supabase
+    // Limpar locks órfãos antes de inicializar
+    this.clearOrphanedLocks();
+
+    // Inicializar cliente Supabase com configurações otimizadas
     this.supabase = createClient(
       environment.supabase.url,
-      environment.supabase.anonKey
+      environment.supabase.anonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce'
+        },
+        global: {
+          headers: {
+            'X-Client-Info': 'supabase-js-angular'
+          }
+        }
+      }
     );
 
-    // Escutar mudanças de autenticação
+    // Escutar mudanças de autenticação com error handling
     this.supabase.auth.onAuthStateChange(async (event, session) => {
-      this._session.next(session);
+      try {
+        this._session.next(session);
 
-      if (session?.user) {
-        this._currentUser.next(session.user);
-        await this.loadCurrentProfile();
-      } else {
-        this._currentUser.next(null);
-        this._currentProfile.next(null);
+        if (session?.user) {
+          this._currentUser.next(session.user);
+          await this.loadCurrentProfile();
+        } else {
+          this._currentUser.next(null);
+          this._currentProfile.next(null);
+        }
+      } catch (error: any) {
+        console.error('Erro no onAuthStateChange:', error);
+
+        // Se for erro de lock, tentar limpar e recarregar
+        if (error.message?.includes('lock') || error.name === 'NavigatorLockAcquireTimeoutError') {
+          this.clearOrphanedLocks();
+          setTimeout(() => this.checkSession(), 2000);
+        }
       }
     });
 
@@ -72,12 +98,102 @@ export class SupabaseService {
     this.checkSession();
   }
 
+  // Método para limpar locks órfãos que podem causar conflitos
+  private clearOrphanedLocks(): void {
+    try {
+      // Limpar keys relacionadas a locks do Supabase que podem estar órfãs
+      const authKeys = Object.keys(localStorage).filter(key =>
+        key.includes('sb-') && key.includes('auth-token')
+      );
+
+      authKeys.forEach(key => {
+        try {
+          const value = localStorage.getItem(key);
+          if (value) {
+            const parsed = JSON.parse(value);
+            // Se o token expirou há mais de 1 hora, remover
+            if (parsed.expires_at && (Date.now() / 1000) > (parsed.expires_at + 3600)) {
+              localStorage.removeItem(key);
+              console.log(`Removido token expirado: ${key}`);
+            }
+          }
+        } catch (e) {
+          // Se não conseguir fazer parse, remover o key problemático
+          localStorage.removeItem(key);
+          console.log(`Removido key problemático: ${key}`);
+        }
+      });
+    } catch (error) {
+      console.warn('Erro ao limpar locks órfãos:', error);
+    }
+  }
+
+  // Método utilitário para retry em operações que podem dar timeout
+  private async retryAuthOperation<T>(
+    operation: () => Promise<T>,
+    operationName: string = 'operação',
+    maxRetries: number = 3,
+    baseDelay: number = 1000
+  ): Promise<T> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 ${operationName} - Tentativa ${attempt}/${maxRetries}`);
+        return await operation();
+      } catch (error: any) {
+        const errorType = error.name || 'UnknownError';
+        const errorMessage = error.message || 'Erro desconhecido';
+
+        console.error(`❌ Tentativa ${attempt} falhou para ${operationName}:`, {
+          type: errorType,
+          message: errorMessage.substring(0, 200) + (errorMessage.length > 200 ? '...' : ''),
+          attempt: attempt,
+          maxRetries: maxRetries
+        });
+
+        const isLockError = errorMessage?.includes('NavigatorLockAcquireTimeoutError') ||
+                           errorMessage?.includes('lock') ||
+                           errorType === 'NavigatorLockAcquireTimeoutError';
+
+        // Se for erro relacionado a lock, tentar limpar
+        if (isLockError) {
+          console.log('🔧 Detectado erro de lock, executando limpeza...');
+          this.clearOrphanedLocks();
+
+          // Para erros de lock, aguardar progressivamente mais
+          const lockDelay = baseDelay * Math.pow(2, attempt - 1);
+          console.log(`🔐 Aguardando ${lockDelay}ms após erro de lock...`);
+          await new Promise(resolve => setTimeout(resolve, lockDelay));
+        } else if (attempt < maxRetries) {
+          // Para outros erros, aguardar normalmente
+          const normalDelay = baseDelay * attempt;
+          console.log(`⏳ Aguardando ${normalDelay}ms antes da próxima tentativa...`);
+          await new Promise(resolve => setTimeout(resolve, normalDelay));
+        }
+
+        if (attempt === maxRetries) {
+          console.error(`🚫 Todas as ${maxRetries} tentativas falharam para ${operationName}`);
+          throw error;
+        }
+      }
+    }
+
+    throw new Error(`Falha após ${maxRetries} tentativas para ${operationName}`);
+  }
+
   private async checkSession() {
-    const { data: { session } } = await this.supabase.auth.getSession();
-    if (session) {
-      this._session.next(session);
-      this._currentUser.next(session.user);
-      await this.loadCurrentProfile();
+    try {
+      const { data: { session } } = await this.retryAuthOperation(
+        () => this.supabase.auth.getSession(),
+        'checkSession'
+      );
+
+      if (session) {
+        this._session.next(session);
+        this._currentUser.next(session.user);
+        await this.loadCurrentProfile();
+      }
+    } catch (error) {
+      console.error('Erro ao verificar sessão:', error);
     }
   }
 
@@ -97,6 +213,58 @@ export class SupabaseService {
     }
 
     this._currentProfile.next(profile);
+  }
+
+  // Método de inicialização para ser chamado no app.config.ts
+  public async initializeAuth(): Promise<void> {
+    console.log('🚀 Inicializando sistema de autenticação...');
+
+    try {
+      // 1. Limpar qualquer lock órfão que possa existir
+      this.clearOrphanedLocks();
+
+      // 2. Aguardar um momento para que os locks sejam limpos
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 3. Verificar sessão atual
+      await this.checkSession();
+
+      console.log('✅ Sistema de autenticação inicializado com sucesso');
+    } catch (error) {
+      console.error('❌ Erro ao inicializar sistema de autenticação:', error);
+
+      // Em caso de erro, tentar uma vez mais após limpar tudo
+      try {
+        console.log('🔄 Tentando recuperação de emergência...');
+        this.clearOrphanedLocks();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await this.checkSession();
+        console.log('✅ Recuperação bem-sucedida');
+      } catch (recoveryError) {
+        console.error('❌ Falha na recuperação:', recoveryError);
+      }
+    }
+  }
+
+  // Método público para resolver problemas de lock
+  public async resolveLockIssues(): Promise<void> {
+    try {
+      console.log('🔧 Resolvendo problemas de lock...');
+
+      // 1. Limpar locks órfãos
+      this.clearOrphanedLocks();
+
+      // 2. Aguardar um momento
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 3. Tentar recarregar a sessão
+      await this.checkSession();
+
+      console.log('✅ Problemas de lock resolvidos');
+    } catch (error) {
+      console.error('❌ Erro ao resolver locks:', error);
+      throw error;
+    }
   }
 
   // =============================================
@@ -127,44 +295,56 @@ export class SupabaseService {
 
   async signIn(email: string, password: string): Promise<DatabaseResult<User>> {
     try {
-      const { data, error } = await this.supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } = await this.retryAuthOperation(
+        () => this.supabase.auth.signInWithPassword({
+          email,
+          password
+        }),
+        'signIn'
+      );
 
       return { data: data.user, error };
     } catch (error) {
+      console.error('Erro no login após múltiplas tentativas:', error);
       return { data: null, error };
     }
   }
 
   async signOut(): Promise<{ error: any }> {
-    const { error } = await this.supabase.auth.signOut();
+    try {
+      const { error } = await this.retryAuthOperation(
+        () => this.supabase.auth.signOut(),
+        'signOut'
+      );
 
-    if (!error) {
-      // Limpar estado dos observables
-      this._currentUser.next(null);
-      this._currentProfile.next(null);
-      this._session.next(null);
+      if (!error) {
+        // Limpar estado dos observables
+        this._currentUser.next(null);
+        this._currentProfile.next(null);
+        this._session.next(null);
 
-      // Limpar TODAS as chaves do Supabase do localStorage
-      const keysToRemove = [];
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
-          keysToRemove.push(key);
+        // Limpar TODAS as chaves do Supabase do localStorage
+        const keysToRemove = [];
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+            keysToRemove.push(key);
+          }
         }
+
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+
+        // Limpar dados legados da aplicação
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('users');
+        localStorage.removeItem('contactMessages');
       }
 
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-
-      // Limpar dados legados da aplicação
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('users');
-      localStorage.removeItem('contactMessages');
+      return { error };
+    } catch (error) {
+      console.error('Erro no logout após múltiplas tentativas:', error);
+      return { error };
     }
-
-    return { error };
   }
 
   async resetPassword(email: string): Promise<{ error: any }> {
@@ -237,23 +417,41 @@ export class SupabaseService {
     deadline?: string;
   }): Promise<DatabaseResult<ContactMessage>> {
     const user = this._currentUser.value;
-    if (!user) return { data: null, error: 'Usuário não autenticado' };
+    if (!user) {
+      console.error('❌ Usuário não autenticado ao tentar criar mensagem');
+      return { data: null, error: 'Usuário não autenticado' };
+    }
 
     try {
-      const { data, error } = await this.supabase
-        .from('contact_messages')
-        .insert({
-          ...messageData,
-          user_id: user.id
-        })
-        .select(`
-          *,
-          profiles:user_id (*)
-        `)
-        .single();
+      console.log('📝 Criando mensagem com dados:', messageData);
+      console.log('👤 Usuário autenticado:', user.id);
+
+      const { data, error } = await this.retryAuthOperation(
+        async () => {
+          return await this.supabase
+            .from('contact_messages')
+            .insert({
+              ...messageData,
+              user_id: user.id
+            })
+            .select(`
+              *,
+              profiles:user_id (*)
+            `)
+            .single();
+        },
+        'createMessage'
+      );
+
+      if (error) {
+        console.error('❌ Erro do Supabase ao criar mensagem:', error);
+      } else {
+        console.log('✅ Mensagem criada com sucesso:', data);
+      }
 
       return { data, error };
     } catch (error) {
+      console.error('❌ Erro inesperado ao criar mensagem:', error);
       return { data: null, error };
     }
   }

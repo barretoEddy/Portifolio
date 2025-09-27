@@ -384,7 +384,7 @@
 
 /* Auth Button Styles */
 .auth-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #64ffda 0%, rgba(100, 255, 218, 0.102) 100%);
   color: #fff;
   display: flex;
   align-items: center;
@@ -393,13 +393,13 @@
   font-weight: 600;
   font-size: 1rem;
   transition: all 0.4s ease;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
 }
 
 .auth-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-  background: linear-gradient(135deg, #7b8cec 0%, #8b5fbf 100%);
+  box-shadow: 0 12px 35px rgba(100, 255, 218, 0.4);
+  background: linear-gradient(135deg, #64ffda 0%, #64ffda1a 100%);
 }
 
 .button-icon {
