@@ -1,0 +1,9 @@
+/* Remove o padding-top do app para a home, pois ela tem seu próprio sistema */
+:host {
+  margin-top: -120px;
+}
+
+/* Garantir que o primeiro elemento tenha padding suficiente */
+:host > :first-child {
+  padding-top: 120px;
+}

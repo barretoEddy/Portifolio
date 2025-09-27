@@ -59,16 +59,16 @@ export class HeaderComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       // Logo aparece na home e no blog
-      const showLogo = event.urlAfterRedirects === '/' || 
-                      event.urlAfterRedirects === '' || 
+      const showLogo = event.urlAfterRedirects === '/' ||
+                      event.urlAfterRedirects === '' ||
                       event.urlAfterRedirects.startsWith('/blog');
       this.isHomePage.set(showLogo);
     });
 
     // Verificar rota inicial
     const currentUrl = this.router.url;
-    const showLogo = currentUrl === '/' || 
-                    currentUrl === '' || 
+    const showLogo = currentUrl === '/' ||
+                    currentUrl === '' ||
                     currentUrl.startsWith('/blog');
     this.isHomePage.set(showLogo);
 
@@ -134,35 +134,74 @@ export class HeaderComponent implements OnInit {
 
   // Método para fazer logout
   async logout() {
+    console.log('🚪 HeaderComponent: Iniciando logout...');
     this.closeMobileMenu();
 
     try {
-      // Fazer logout no Supabase (AuthService vai observar e se atualizar automaticamente)
+      // 1. Fazer logout no Supabase
+      console.log('🔄 HeaderComponent: Chamando SupabaseService.signOut()...');
       const result = await this.supabaseService.signOut();
 
       if (result.error) {
-        console.error('Erro no logout:', result.error);
-        throw result.error;
+        console.error('❌ HeaderComponent: Erro no logout do Supabase:', result.error);
+        // Não vamos fazer throw ainda, vamos continuar tentando limpar tudo
+      } else {
+        console.log('✅ HeaderComponent: Logout do Supabase bem-sucedido');
       }
 
-      // Aguardar um momento para os observables se atualizarem
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // 2. Forçar limpeza do AuthService também
+      console.log('🔄 HeaderComponent: Chamando AuthService.logout()...');
+      this.authService.logout();
 
-      // Navegar para home
+      // 3. Limpar estado local do header imediatamente
+      console.log('🧹 HeaderComponent: Limpando estado local...');
+      this.isLoggedIn.set(false);
+      this.userFullName.set(null);
+      this.isAdmin.set(false);
+
+      // 4. Aguardar um momento para os observables se atualizarem
+      console.log('⏳ HeaderComponent: Aguardando atualização dos observables...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // 5. Verificar se realmente foi limpo
+      const finalCheck = {
+        supabaseAuth: this.supabaseService.isAuthenticated(),
+        authServiceAuth: this.authService.isLoggedIn(),
+        headerLoggedIn: this.isLoggedIn()
+      };
+      console.log('🔍 HeaderComponent: Verificação final após logout:', finalCheck);
+
+      // 6. Navegar para home
+      console.log('🏠 HeaderComponent: Navegando para home...');
       await this.router.navigate(['/'], { replaceUrl: true });
 
+      console.log('✅ HeaderComponent: Logout concluído com sucesso');
+
     } catch (error) {
-      console.error('Erro durante logout:', error);
+      console.error('❌ HeaderComponent: Erro durante logout:', error);
 
       // Em caso de erro, forçar limpeza local
+      console.log('🆘 HeaderComponent: Executando limpeza de emergência...');
+
       this.isLoggedIn.set(false);
       this.userFullName.set(null);
       this.isAdmin.set(false);
 
       // Forçar logout no AuthService também
-      this.authService.logout();
+      try {
+        this.authService.logout();
+      } catch (authError) {
+        console.error('❌ HeaderComponent: Erro na limpeza do AuthService:', authError);
+      }
 
-      await this.router.navigate(['/'], { replaceUrl: true });
+      // Tentar navegar mesmo com erro
+      try {
+        await this.router.navigate(['/'], { replaceUrl: true });
+      } catch (navError) {
+        console.error('❌ HeaderComponent: Erro na navegação:', navError);
+        // Forçar navegação via window.location como último recurso
+        window.location.href = '/';
+      }
     }
   }
 

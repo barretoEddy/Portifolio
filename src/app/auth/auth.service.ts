@@ -110,48 +110,80 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('🚪 AuthService: Iniciando logout...');
+
+    // Primeiro, limpar nosso estado local
+    console.log('🧹 AuthService: Limpando estado local...');
+    this.currentUserSubject.next(null);
+
+    // Depois, solicitar logout do Supabase (que já tem sua própria limpeza robusta)
     this.supabaseService.signOut().then(result => {
       if (result.error) {
-        console.error('Erro ao fazer logout:', result.error);
+        console.error('⚠️ AuthService: Erro no logout do Supabase:', result.error);
+      } else {
+        console.log('✅ AuthService: Logout do Supabase bem-sucedido');
       }
 
-      // Garantir que o estado local também seja limpo
+      // Garantir que nosso estado local esteja limpo (dupla verificação)
       this.currentUserSubject.next(null);
 
-      // Função para limpar TODAS as chaves do Supabase
-      const clearSupabaseData = () => {
-        const keysToRemove = [];
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const key = localStorage.key(i);
-          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
-            keysToRemove.push(key);
-          }
-        }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-      };
+      // Limpeza adicional de dados legados (por compatibilidade)
+      try {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('users');
+        localStorage.removeItem('contactMessages');
+        console.log('✅ AuthService: Dados legados removidos');
+      } catch (error) {
+        console.warn('⚠️ AuthService: Erro ao remover dados legados:', error);
+      }
 
-      // Limpar dados do Supabase
-      clearSupabaseData();
+      console.log('✅ AuthService: Logout concluído');
+    }).catch(error => {
+      console.error('❌ AuthService: Erro crítico no logout:', error);
 
-      // Limpar dados legados do localStorage (compatibilidade)
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('users');
-      localStorage.removeItem('contactMessages');
+      // Mesmo com erro, garantir que o estado local seja limpo
+      this.currentUserSubject.next(null);
 
-      // O estado será atualizado automaticamente pelo SupabaseService também
+      try {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('users');
+        localStorage.removeItem('contactMessages');
+      } catch (cleanupError) {
+        console.warn('⚠️ AuthService: Erro na limpeza de emergência:', cleanupError);
+      }
     });
   }
 
   isLoggedIn(): boolean {
-    return this.supabaseService.isAuthenticated();
+    const localUser = this.currentUserSubject.value;
+    const supabaseAuth = this.supabaseService.isAuthenticated();
+
+    console.log('🔍 AuthService.isLoggedIn() check:', {
+      localUser: !!localUser,
+      supabaseAuth: supabaseAuth,
+      result: localUser && supabaseAuth
+    });
+
+    return localUser !== null && supabaseAuth;
   }
 
   isAdmin(): boolean {
-    return this.supabaseService.isAdmin();
+    const isLoggedIn = this.isLoggedIn();
+    const isSupabaseAdmin = this.supabaseService.isAdmin();
+
+    console.log('👑 AuthService.isAdmin() check:', {
+      isLoggedIn: isLoggedIn,
+      isSupabaseAdmin: isSupabaseAdmin,
+      result: isLoggedIn && isSupabaseAdmin
+    });
+
+    return isLoggedIn && isSupabaseAdmin;
   }
 
   hasAdminAccess(): boolean {
-    return this.isLoggedIn() && this.isAdmin();
+    const adminAccess = this.isLoggedIn() && this.isAdmin();
+    console.log('🛡️ AuthService.hasAdminAccess():', adminAccess);
+    return adminAccess;
   }
 
   // Método para resetar senha (novo)

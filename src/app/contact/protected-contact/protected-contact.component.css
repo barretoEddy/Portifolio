@@ -3,6 +3,7 @@
   min-height: calc(100vh - 110px); /* Ajusta altura considerando o header */
   background: linear-gradient(135deg, #f6f9fc 0%, #eef4f9 100%);
   padding: 2rem 1rem;
+  padding-top: 3rem; /* Espaço extra para o header global */
 }
 
 /* Header */

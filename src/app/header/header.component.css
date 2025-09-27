@@ -33,7 +33,7 @@ nav.no-logo {
     justify-content: flex-end;
     position: relative;
   }
-  
+
   nav.no-logo .nav-links {
     left: 50%;
     transform: translateX(-50%);

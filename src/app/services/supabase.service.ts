@@ -311,38 +311,99 @@ export class SupabaseService {
   }
 
   async signOut(): Promise<{ error: any }> {
-    try {
-      const { error } = await this.retryAuthOperation(
-        () => this.supabase.auth.signOut(),
-        'signOut'
-      );
+    console.log('🚪 Iniciando processo de logout...');
 
-      if (!error) {
-        // Limpar estado dos observables
+    try {
+      // 1. Tentar fazer logout no Supabase
+      let supabaseError = null;
+
+      try {
+        console.log('🔄 Fazendo logout no Supabase...');
+        const { error } = await this.retryAuthOperation(
+          () => this.supabase.auth.signOut(),
+          'signOut'
+        );
+        supabaseError = error;
+
+        if (error) {
+          console.warn('⚠️ Erro no logout do Supabase (continuando limpeza):', error);
+        } else {
+          console.log('✅ Logout do Supabase realizado com sucesso');
+        }
+      } catch (error) {
+        console.warn('⚠️ Falha no logout do Supabase (continuando limpeza):', error);
+        supabaseError = error;
+      }
+
+      // 2. Sempre limpar o estado local, independente do resultado do Supabase
+      console.log('🧹 Limpando estado local...');
+
+      // Limpar observables imediatamente
+      this._currentUser.next(null);
+      this._currentProfile.next(null);
+      this._session.next(null);
+
+      // 3. Limpar localStorage de forma abrangente
+      console.log('🗑️ Limpando localStorage...');
+
+      try {
+        // Backup das chaves antes da limpeza
+        const allKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key) allKeys.push(key);
+        }
+
+        // Remover chaves do Supabase
+        const supabaseKeys = allKeys.filter(key =>
+          key.startsWith('sb-') ||
+          key.includes('supabase') ||
+          key.includes('auth-token')
+        );
+
+        supabaseKeys.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+            console.log(`🗑️ Removido: ${key}`);
+          } catch (e) {
+            console.warn(`⚠️ Erro ao remover ${key}:`, e);
+          }
+        });
+
+        // Remover chaves legadas da aplicação
+        const legacyKeys = ['currentUser', 'users', 'contactMessages'];
+        legacyKeys.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+            console.log(`🗑️ Removido (legado): ${key}`);
+          } catch (e) {
+            console.warn(`⚠️ Erro ao remover ${key}:`, e);
+          }
+        });
+
+      } catch (storageError) {
+        console.error('❌ Erro ao limpar localStorage:', storageError);
+      }
+
+      // 4. Forçar limpeza adicional após um pequeno delay
+      setTimeout(() => {
+        console.log('🔄 Limpeza adicional (delayed)...');
         this._currentUser.next(null);
         this._currentProfile.next(null);
         this._session.next(null);
+      }, 100);
 
-        // Limpar TODAS as chaves do Supabase do localStorage
-        const keysToRemove = [];
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const key = localStorage.key(i);
-          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
-            keysToRemove.push(key);
-          }
-        }
+      console.log('✅ Processo de logout concluído');
+      return { error: supabaseError };
 
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-
-        // Limpar dados legados da aplicação
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('users');
-        localStorage.removeItem('contactMessages');
-      }
-
-      return { error };
     } catch (error) {
-      console.error('Erro no logout após múltiplas tentativas:', error);
+      console.error('❌ Erro crítico no logout:', error);
+
+      // Mesmo com erro, tentar limpar o máximo possível
+      this._currentUser.next(null);
+      this._currentProfile.next(null);
+      this._session.next(null);
+
       return { error };
     }
   }
@@ -590,12 +651,86 @@ export class SupabaseService {
       .subscribe();
   }
 
-  // =============================================
-  // MÉTODOS UTILITÁRIOS
-  // =============================================
+  // Método público para verificar se a sessão atual ainda é válida
+  public async isSessionValid(): Promise<boolean> {
+    try {
+      const { data: { session }, error } = await this.supabase.auth.getSession();
 
+      if (error || !session) {
+        console.log('❌ Sessão inválida ou não encontrada:', error?.message || 'Sem sessão');
+        return false;
+      }
+
+      // Verificar se o token não expirou
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = session.expires_at || 0;
+
+      if (now >= expiresAt) {
+        console.log('⏰ Token expirado, tentando refresh...');
+        return await this.refreshSession();
+      }
+
+      console.log('✅ Sessão válida encontrada');
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao verificar validade da sessão:', error);
+      return false;
+    }
+  }
+
+  // Método para forçar refresh da sessão
+  public async refreshSession(): Promise<boolean> {
+    try {
+      console.log('🔄 Fazendo refresh da sessão...');
+
+      const { data: { session }, error } = await this.supabase.auth.refreshSession();
+
+      if (error || !session) {
+        console.log('❌ Falha no refresh da sessão:', error?.message);
+
+        // Se falhou o refresh, limpar tudo e forçar novo login
+        await this.signOut();
+        return false;
+      }
+
+      console.log('✅ Sessão renovada com sucesso');
+
+      // Atualizar os observables
+      this._session.next(session);
+      this._currentUser.next(session.user);
+
+      // Recarregar o perfil
+      if (session.user) {
+        await this.loadCurrentProfile();
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ Erro durante refresh da sessão:', error);
+      await this.signOut();
+      return false;
+    }
+  }
+
+  // Método aprimorado para verificar autenticação
   isAuthenticated(): boolean {
-    return this._currentUser.value !== null;
+    const user = this._currentUser.value;
+    const session = this._session.value;
+
+    if (!user || !session) {
+      return false;
+    }
+
+    // Verificação básica de expiração
+    const now = Math.floor(Date.now() / 1000);
+    const expiresAt = session.expires_at || 0;
+
+    if (now >= expiresAt) {
+      console.log('⏰ Token expirado detectado em isAuthenticated()');
+      return false;
+    }
+
+    return true;
   }
 
   isAdmin(): boolean {
