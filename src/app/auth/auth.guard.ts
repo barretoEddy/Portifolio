@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
     // 1. Primeira verificação rápida
     const quickCheck = this.authService.isLoggedIn() && this.authService.currentUserValue;
     if (quickCheck) {
-      console.log('✅ AuthGuard: Acesso imediato permitido (usuário já carregado)');
+      //console.log('✅ AuthGuard: Acesso imediato permitido (usuário já carregado)');
       return true;
     }
 
@@ -51,24 +51,24 @@ export class AuthGuard implements CanActivate {
           const { data: { session }, error } = await this.supabaseService['supabase'].auth.getSession();
 
           if (error || !session) {
-            console.log('❌ AuthGuard: Sessão inválida ou expirada', error);
+            //console.log('❌ AuthGuard: Sessão inválida ou expirada', error);
             return false;
           }
 
-          console.log('✅ AuthGuard: Sessão válida encontrada');
+          //console.log('✅ AuthGuard: Sessão válida encontrada');
           return true;
         } catch (error) {
-          console.error('❌ AuthGuard: Erro ao verificar sessão:', error);
+          //console.error('❌ AuthGuard: Erro ao verificar sessão:', error);
           return false;
         }
       }),
       // Mapear o resultado para boolean
       map((isAuthenticated: boolean) => {
         if (isAuthenticated) {
-          console.log('✅ AuthGuard: Acesso permitido para:', state.url);
+          //console.log('✅ AuthGuard: Acesso permitido para:', state.url);
           return true;
         } else {
-          console.log('❌ AuthGuard: Acesso negado, redirecionando para login');
+          //console.log('❌ AuthGuard: Acesso negado, redirecionando para login');
           this.router.navigate(['/login'], {
             queryParams: { returnUrl: state.url },
             replaceUrl: true
@@ -78,11 +78,11 @@ export class AuthGuard implements CanActivate {
       }),
       // Em caso de erro ou timeout
       catchError((error) => {
-        console.error('❌ AuthGuard: Erro durante verificação:', error);
+        //console.error('❌ AuthGuard: Erro durante verificação:', error);
 
         // Se deu timeout, assumir que não está autenticado
         if (error.name === 'TimeoutError') {
-          console.log('⏰ AuthGuard: Timeout na verificação, negando acesso');
+          //console.log('⏰ AuthGuard: Timeout na verificação, negando acesso');
         }
 
         this.router.navigate(['/login'], {
