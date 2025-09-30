@@ -144,102 +144,74 @@ export class AuthService {
     console.log('🔐 AuthService.login(): Iniciando login para:', email);
 
     return from(this.supabaseService.signIn(email, password)).pipe(
-      switchMap(result => {
-        // console.log('📧 AuthService.login(): Resposta do signIn:', {
-        //   success: !result.error,
-        //   error: result.error?.message
-        // });
+      switchMap(async (result) => {
+        console.log('📧 AuthService.login(): Resposta do signIn:', {
+          success: !result.error,
+          error: result.error?.message
+        });
 
         if (result.error) {
           throw new Error(result.error.message || 'Email ou senha inválidos');
         }
 
-        //console.log('⏳ AuthService.login(): Aguardando dados do usuário...');
+        console.log('⏳ AuthService.login(): Criando usuário imediatamente...');
 
-        // Aguardar o perfil ser carregado com timeout e retry
-        return this.currentUser.pipe(
-          // Pequeno delay para permitir que o onAuthStateChange seja processado
-          delay(100),
-          filter(user => {
-            //console.log('🔍 AuthService.login(): Verificando usuário atual:', user ? { id: user.id, email: user.email } : null);
-            return user !== null;
-          }),
-          take(1), // Pegar apenas o primeiro valor válido
-          timeout(15000), // Timeout de 15 segundos (aumentado)
-          map(user => {
-            // console.log('✅ AuthService.login(): Dados do usuário carregados:', {
-            //   id: user!.id,
-            //   email: user!.email,
-            //   role: user!.role
-            // });
-            return user!;
-          }),
-          catchError(error => {
-            console.error('❌ AuthService.login(): Timeout ao aguardar usuário:', error);
+        // Tentar obter dados do Supabase imediatamente
+        const supabaseUser = this.supabaseService.getCurrentUser();
 
-            // Tentativa de recuperação: forçar inicialização do SupabaseService
-            //console.log('🔄 AuthService.login(): Tentando recuperação forçada...');
+        if (!supabaseUser) {
+          // Aguardar um momento e tentar novamente
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retryUser = this.supabaseService.getCurrentUser();
 
-            return from(this.supabaseService.initializeAuth()).pipe(
-              delay(1000), // Aguardar um pouco após a inicialização
-              switchMap(() => {
-                //console.log('🔍 AuthService.login(): Verificando estado após recuperação...');
+          if (!retryUser) {
+            throw new Error('Erro ao obter dados do usuário após login');
+          }
+        }
 
-                // Tentar obter o usuário novamente
-                const currentUser = this.currentUserSubject.value;
-                if (currentUser) {
-                  //console.log('✅ AuthService.login(): Recuperação bem-sucedida:', currentUser.email);
-                  return of(currentUser);
-                }
+        const finalUser = supabaseUser || this.supabaseService.getCurrentUser();
+        const supabaseProfile = this.supabaseService.getCurrentProfile();
 
-                // Se ainda não tem usuário, tentar criar manualmente
-                //console.log('🔧 AuthService.login(): Tentando criar usuário manualmente...');
-                const supabaseUser = this.supabaseService.getCurrentUser();
-                const supabaseProfile = this.supabaseService.getCurrentProfile();
+        console.log('📊 AuthService.login(): Estado após login:', {
+          hasUser: !!finalUser,
+          hasProfile: !!supabaseProfile,
+          userEmail: finalUser?.email
+        });
 
-                // console.log('📊 AuthService.login(): Estado do Supabase:', {
-                //   hasUser: !!supabaseUser,
-                //   hasProfile: !!supabaseProfile,
-                //   userEmail: supabaseUser?.email
-                // });
+        let user: User;
 
-                if (supabaseProfile) {
-                  const user = this.mapProfileToUser(supabaseProfile);
-                  this.currentUserSubject.next(user);
-                  //console.log('✅ AuthService.login(): Usuário criado a partir do perfil:', user.email);
-                  return of(user);
-                } else if (supabaseUser) {
-                  const basicUser: User = {
-                    id: supabaseUser.id,
-                    fullName: supabaseUser.user_metadata?.['full_name'] || supabaseUser.email?.split('@')[0] || 'Usuário',
-                    email: supabaseUser.email || `${supabaseUser.id}@supabase.user`,
-                    company: supabaseUser.user_metadata?.['company'] || undefined,
-                    role: this.isEmailAdmin(supabaseUser.email) ? 'admin' : 'user',
-                    createdAt: new Date(supabaseUser.created_at || Date.now())
-                  };
+        if (supabaseProfile) {
+          // Se tem perfil, usar dados completos
+          user = this.mapProfileToUser(supabaseProfile);
+          console.log('✅ AuthService.login(): Usuário criado a partir do perfil');
+        } else {
+          // Se não tem perfil, criar usuário básico
+          user = {
+            id: finalUser!.id,
+            fullName: finalUser!.user_metadata?.['full_name'] || finalUser!.email?.split('@')[0] || 'Usuário',
+            email: finalUser!.email || `${finalUser!.id}@supabase.user`,
+            company: finalUser!.user_metadata?.['company'] || undefined,
+            role: this.isEmailAdmin(finalUser!.email) ? 'admin' : 'user',
+            createdAt: new Date(finalUser!.created_at || Date.now())
+          };
+          console.log('✅ AuthService.login(): Usuário básico criado');
 
-                  this.currentUserSubject.next(basicUser);
-                  //console.log('✅ AuthService.login(): Usuário básico criado:', basicUser.email);
+          // Tentar carregar perfil em background
+          setTimeout(() => {
+            this.supabaseService.initializeAuth().catch(console.error);
+          }, 100);
+        }
 
-                  // Forçar carregamento do perfil em background
-                  setTimeout(() => {
-                    //console.log('🔄 AuthService.login(): Forçando carregamento de perfil em background...');
-                    this.supabaseService.initializeAuth().catch(console.error);
-                  }, 100);
+        // Atualizar estado local
+        this.currentUserSubject.next(user);
 
-                  return of(basicUser);
-                }
+        console.log('🎉 AuthService.login(): Login concluído:', {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        });
 
-                //console.error('❌ AuthService.login(): Falha total - sem dados do Supabase');
-                return throwError(() => new Error('Erro ao carregar dados do usuário após login'));
-              }),
-              catchError(recoveryError => {
-                //console.error('❌ AuthService.login(): Falha crítica na recuperação:', recoveryError);
-                return throwError(() => new Error('Erro ao carregar dados do usuário'));
-              })
-            );
-          })
-        );
+        return user;
       })
     );
   }
@@ -379,17 +351,17 @@ export class AuthService {
     const supabaseUser = this.supabaseService.getCurrentUser();
     const supabaseProfile = this.supabaseService.getCurrentProfile();
 
-    console.log('🔍 AuthService.isLoggedIn() check:', {
-      hasValidToken,
-      localUser: !!localUser,
-      supabaseAuth: supabaseAuth,
-      supabaseUser: !!supabaseUser,
-      supabaseProfile: !!supabaseProfile
-    });
+    // console.log('🔍 AuthService.isLoggedIn() check:', {
+    //   hasValidToken,
+    //   localUser: !!localUser,
+    //   supabaseAuth: supabaseAuth,
+    //   supabaseUser: !!supabaseUser,
+    //   supabaseProfile: !!supabaseProfile
+    // });
 
     // 3. Se tem token válido mas não tem localUser, tentar criar um usuario local baseado no token
     if (hasValidToken && !localUser) {
-      console.log('🔄 Token válido encontrado, mas localUser é null. Tentando recriar...');
+      //console.log('🔄 Token válido encontrado, mas localUser é null. Tentando recriar...');
 
       if (supabaseUser) {
         // Se temos usuário do Supabase mas sem perfil, criar um usuário básico
@@ -505,7 +477,7 @@ export class AuthService {
 
     // Se não está logado, não é admin
     if (!isLoggedIn) {
-      console.log('❌ AuthService.isAdmin(): Usuário não está logado');
+      //console.log('❌ AuthService.isAdmin(): Usuário não está logado');
       return false;
     }
 

@@ -47,9 +47,9 @@ export class LoginComponent implements OnInit {
     setTimeout(() => {
       const isLoggedIn = this.authService.isLoggedIn();
       const hasUser = !!this.authService.currentUserValue;
-
+      
       console.log('🔄 LoginComponent: Verificação inicial:', { isLoggedIn, hasUser });
-
+      
       if (isLoggedIn && hasUser) {
         console.log('✅ LoginComponent: Usuário já logado, redirecionando...');
         this.performSimpleRedirect(this.authService.currentUserValue!);
@@ -79,7 +79,7 @@ export class LoginComponent implements OnInit {
           this.successMessage = `Bem-vindo(a), ${user.fullName}!`;
 
           // Verificar se é acesso admin mas usuário não é admin
-          if (this.isAdminAccess && user.role !== 'admin') {
+          if (this.isAdminAccess && !this.authService.isAdmin()) {
             this.isLoading = false;
             this.errorMessage = 'Acesso negado. Esta área é restrita a administradores.';
             return;
@@ -93,7 +93,7 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-
+          
           console.error('❌ LoginComponent: Erro no login:', error);
 
           // Tratamento de erro mais amigável baseado no tipo de erro Supabase
@@ -156,6 +156,73 @@ export class LoginComponent implements OnInit {
     this.successMessage = '';
   }
 
+  private redirectBasedOnRole() {
+    if (this.authService.isAdmin()) {
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      const redirectUrl = this.returnUrl !== '/' ? this.returnUrl : '/protected-contact';
+      this.router.navigate([redirectUrl]);
+    }
+  }
+
+  private async redirectBasedOnRoleAsync() {
+    console.log('🔄 LoginComponent: Iniciando redirecionamento baseado no papel...');
+
+    try {
+      // Primeiro, verificar se já temos dados imediatamente disponíveis
+      const currentUser = this.authService.currentUserValue;
+      if (currentUser) {
+        console.log('✅ LoginComponent: Dados já disponíveis, redirecionando imediatamente');
+        return this.performRedirect(currentUser);
+      }
+
+      // Se não tem dados, aguardar carregamento
+      console.log('⏳ LoginComponent: Aguardando carregamento dos dados...');
+      
+      let attempts = 0;
+      const maxAttempts = 15; // 3 segundos no máximo
+
+      while (attempts < maxAttempts) {
+        const isLoggedIn = this.authService.isLoggedIn();
+        const user = this.authService.currentUserValue;
+
+        console.log(`🔍 LoginComponent: Tentativa ${attempts + 1}/${maxAttempts}:`, {
+          isLoggedIn,
+          hasCurrentUser: !!user,
+          userRole: user?.role,
+          userId: user?.id
+        });
+
+        if (user) {
+          console.log('✅ LoginComponent: Dados carregados após aguardar');
+          return this.performRedirect(user);
+        }
+
+        // Se passou muito tempo sem dados, forçar redirecionamento básico
+        if (attempts > 10 && isLoggedIn) {
+          console.log('⚠️ LoginComponent: Forçando redirecionamento básico');
+          const destination = this.isAdminAccess ? '/admin/dashboard' : '/protected-contact';
+          await this.router.navigate([destination]);
+          console.log('🚀 LoginComponent: Redirecionamento forçado para:', destination);
+          return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 200));
+        attempts++;
+      }
+
+      // Timeout - algo deu errado
+      console.error('⏰ LoginComponent: Timeout completo - redirecionamento de emergência');
+      const emergencyDestination = this.returnUrl !== '/' ? this.returnUrl : '/protected-contact';
+      await this.router.navigate([emergencyDestination]);
+      console.log('� LoginComponent: Redirecionamento de emergência para:', emergencyDestination);
+
+    } catch (error) {
+      console.error('❌ LoginComponent: Erro crítico durante redirecionamento:', error);
+      this.errorMessage = 'Erro ao redirecionar. Tente novamente.';
+    }
+  }
+
   private performSimpleRedirect(user: any) {
     console.log('🎯 LoginComponent: Redirecionamento simples para usuário:', {
       id: user.id,
@@ -166,7 +233,7 @@ export class LoginComponent implements OnInit {
     try {
       // Determinar destino baseado no papel do usuário retornado pelo login
       let destination: string;
-
+      
       // Usar o role diretamente do usuário retornado
       if (user.role === 'admin') {
         destination = '/admin/dashboard';
@@ -200,6 +267,37 @@ export class LoginComponent implements OnInit {
       this.errorMessage = 'Erro ao redirecionar. Tente novamente.';
       this.isLoading = false;
     }
+  }
+
+  private async performRedirect(user: any) {
+    console.log('🎯 LoginComponent: Executando redirecionamento para usuário:', {
+      id: user.id,
+      role: user.role,
+      email: user.email
+    });
+
+    const isAdmin = this.authService.isAdmin();
+
+    // Verificação final para admin access
+    if (this.isAdminAccess && !isAdmin) {
+      console.log('❌ LoginComponent: Acesso admin negado para usuário não-admin');
+      this.errorMessage = 'Acesso negado. Esta área é restrita a administradores.';
+      return;
+    }
+
+    // Determinar destino
+    let destination: string;
+    if (isAdmin) {
+      destination = '/admin/dashboard';
+      console.log('👑 LoginComponent: Redirecionando admin para dashboard');
+    } else {
+      destination = this.returnUrl !== '/' ? this.returnUrl : '/protected-contact';
+      console.log('👤 LoginComponent: Redirecionando usuário para:', destination);
+    }
+
+    // Executar navegação
+    await this.router.navigate([destination]);
+    console.log('🚀 LoginComponent: Redirecionamento concluído com sucesso para:', destination);
   }
 
   goToRegister() {

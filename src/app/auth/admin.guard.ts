@@ -38,72 +38,78 @@ export class AdminGuard implements CanActivate {
 
         console.log('🔄 AdminGuard: Verificação detalhada necessária...');
 
-        // 3. Verificação detalhada com observable
-        this.supabaseService.currentUser.pipe(
-          // Aguardar até 5 segundos pela resposta
-          timeout(5000),
-          // Pegar apenas o primeiro valor emitido
-          take(1),
-          // Verificar se temos um usuário válido e se é admin
-          switchMap(async (user) => {
-            //console.log('👤 AdminGuard: Usuário do Supabase:', user ? user.id : 'null');
+        // 3. Verificação direta mais eficiente
+        const isLoggedIn = this.authService.isLoggedIn();
+        const currentUser = this.authService.currentUserValue;
+        const isAdmin = this.authService.isAdmin();
 
-            if (!user) {
-              //console.log('❌ AdminGuard: Nenhum usuário encontrado');
-              return { isAuthenticated: false, isAdmin: false };
-            }
+        console.log('🔍 AdminGuard: Estado após aguardar:', {
+          isLoggedIn,
+          hasUser: !!currentUser,
+          isAdmin,
+          userRole: currentUser?.role
+        });
 
-            // Verificar se a sessão ainda é válida
-            try {
-              const isSessionValid = await this.supabaseService.isSessionValid();
-              if (!isSessionValid) {
-                //console.log('❌ AdminGuard: Sessão inválida');
-                return { isAuthenticated: false, isAdmin: false };
-              }
+        // Se tem usuário e é admin, permitir acesso
+        if (isLoggedIn && currentUser && isAdmin) {
+          console.log('✅ AdminGuard: Acesso admin imediato permitido');
+          resolve(true);
+          return;
+        }
 
-              const isAdmin = this.supabaseService.isAdmin();
-              //console.log('🔍 AdminGuard: Status do usuário:', { isAuthenticated: true, isAdmin });
+        // Se tem usuário mas não é admin, redirecionar para área do usuário
+        if (isLoggedIn && currentUser && !isAdmin) {
+          console.log('⚠️ AdminGuard: Usuário logado mas não é admin, redirecionando');
+          this.router.navigate(['/protected-contact'], { replaceUrl: true });
+          resolve(false);
+          return;
+        }
 
-              return { isAuthenticated: true, isAdmin };
-            } catch (error) {
-              //console.error('❌ AdminGuard: Erro ao verificar sessão:', error);
-              return { isAuthenticated: false, isAdmin: false };
-            }
-          }),
-          // Mapear o resultado para boolean
-          map(({ isAuthenticated, isAdmin }) => {
-            if (isAuthenticated && isAdmin) {
-              //console.log('✅ AdminGuard: Acesso admin permitido para:', state.url);
-              return true;
-            } else if (isAuthenticated && !isAdmin) {
-              //console.log('⚠️ AdminGuard: Usuário logado mas não é admin, redirecionando');
-              this.router.navigate(['/protected-contact'], { replaceUrl: true });
-              return false;
-            } else {
-              //console.log('❌ AdminGuard: Usuário não autenticado, redirecionando para login');
-              this.router.navigate(['/login'], {
-                queryParams: { returnUrl: state.url, adminAccess: true },
-                replaceUrl: true
+        // 4. Verificação final via Supabase se não tem dados locais
+        const isSessionValid = await this.supabaseService.isSessionValid();
+
+        if (isSessionValid) {
+          console.log('🔄 AdminGuard: Sessão válida encontrada, aguardando sincronização...');
+
+          // Aguardar sincronização dos dados
+          let attempts = 0;
+          const maxAttempts = 10; // 2 segundos
+
+          while (attempts < maxAttempts) {
+            const syncedUser = this.authService.currentUserValue;
+            const syncedAdmin = this.authService.isAdmin();
+
+            if (syncedUser) {
+              console.log('📊 AdminGuard: Dados sincronizados:', {
+                hasUser: true,
+                isAdmin: syncedAdmin,
+                userRole: syncedUser.role
               });
-              return false;
-            }
-          }),
-          // Em caso de erro ou timeout
-          catchError((error) => {
-            //console.error('❌ AdminGuard: Erro durante verificação:', error);
 
-            // Se deu timeout, assumir que não está autenticado
-            if (error.name === 'TimeoutError') {
-              //console.log('⏰ AdminGuard: Timeout na verificação, negando acesso');
+              if (syncedAdmin) {
+                console.log('✅ AdminGuard: Acesso admin permitido após sincronização');
+                resolve(true);
+                return;
+              } else {
+                console.log('⚠️ AdminGuard: Não é admin após sincronização');
+                this.router.navigate(['/protected-contact'], { replaceUrl: true });
+                resolve(false);
+                return;
+              }
             }
 
-            this.router.navigate(['/login'], {
-              queryParams: { returnUrl: state.url, adminAccess: true },
-              replaceUrl: true
-            });
-            return of(false);
-          })
-        ).subscribe(result => resolve(result));
+            await new Promise(wait => setTimeout(wait, 200));
+            attempts++;
+          }
+        }
+
+        // 5. Se chegou aqui, redirecionar para login
+        console.log('❌ AdminGuard: Acesso negado, redirecionando para login');
+        this.router.navigate(['/login'], {
+          queryParams: { returnUrl: state.url, adminAccess: true },
+          replaceUrl: true
+        });
+        resolve(false);
 
       } catch (error) {
         //console.error('❌ AdminGuard: Erro crítico:', error);

@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   private authService = inject(AuthService);
 
   async ngOnInit() {
-    console.log('🚀 AppComponent: Inicializando aplicação...');
+    //console.log('🚀 AppComponent: Inicializando aplicação...');
 
     try {
       // 1. Inicializar o sistema de autenticação do Supabase
