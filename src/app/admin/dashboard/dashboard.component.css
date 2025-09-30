@@ -9,10 +9,14 @@
 
 /* Header */
 .dashboard-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 1.5rem 0;
+  max-width: 1350px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem 2rem;
+  margin-top: 80px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-top: 80px;
   position: relative; /* Mudado de sticky para relative */
   z-index: 10; /* Reduzido z-index para não conflitar com header global */
 }
