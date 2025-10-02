@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste CodePen Carousel</title>
+    <style>
+        /* CodePen Reference Carousel Styles */
+        .carousel-view {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #0a192f;
+        }
+
+        .carousel-main {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .slider {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .item {
+            width: 200px;
+            height: 300px;
+            list-style-type: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            background-position: center;
+            background-size: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 30px rgba(255,255,255,0.3) inset;
+            transition: transform 0.1s, left 0.75s, top 0.75s, width 0.75s, height 0.75s;
+        }
+
+        .item:nth-child(1),
+        .item:nth-child(2) {
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            transform: none;
+            border-radius: 0;
+            box-shadow: none;
+            opacity: 1;
+        }
+
+        .item:nth-child(3) { left: 50%; }
+        .item:nth-child(4) { left: calc(50% + 220px); }
+        .item:nth-child(5) { left: calc(50% + 440px); }
+        .item:nth-child(6) { left: calc(50% + 660px); opacity: 0; }
+
+        .content {
+            width: min(30vw, 400px);
+            position: absolute;
+            top: 50%;
+            left: 3rem;
+            transform: translateY(-50%);
+            font: 400 0.85rem helvetica, sans-serif;
+            color: white;
+            text-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            opacity: 0;
+            display: none;
+        }
+
+        .content .title {
+            font-family: 'arial-black';
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content .description {
+            line-height: 1.7;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .buttons a {
+            width: fit-content;
+            background-color: rgba(0,0,0,0.1);
+            color: white;
+            border: 2px solid white;
+            border-radius: 0.25rem;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .buttons a:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .item:nth-of-type(2) .content {
+            display: block;
+            animation: show 0.75s ease-in-out 0.3s forwards;
+        }
+
+        @keyframes show {
+            0% {
+                filter: blur(5px);
+                transform: translateY(calc(-50% + 75px));
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        .nav {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            user-select: none;
+        }
+
+        .nav .btn {
+            background-color: rgba(255,255,255,0.5);
+            color: rgba(0,0,0,0.7);
+            border: 2px solid rgba(0,0,0,0.6);
+            margin: 0 0.25rem;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav .btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-view">
+        <main class="carousel-main">
+            <ul class="slider" id="slider">
+                <li class="item" style="background-image: url('https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=600&fit=crop');">
+                    <div class="content">
+                        <h2 class="title">Projeto 1</h2>
+                        <p class="description">Descrição do primeiro projeto incrível.</p>
+                        <div class="buttons">
+                            <a href="#">Código</a>
+                            <a href="#">Ver Projeto</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item" style="background-image: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=600&fit=crop');">
+                    <div class="content">
+                        <h2 class="title">Projeto 2</h2>
+                        <p class="description">Descrição do segundo projeto fantástico.</p>
+                        <div class="buttons">
+                            <a href="#">Código</a>
+                            <a href="#">Ver Projeto</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item" style="background-image: url('https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400&h=600&fit=crop');">
+                    <div class="content">
+                        <h2 class="title">Projeto 3</h2>
+                        <p class="description">Descrição do terceiro projeto espetacular.</p>
+                        <div class="buttons">
+                            <a href="#">Código</a>
+                            <a href="#">Ver Projeto</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item" style="background-image: url('https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=600&fit=crop');">
+                    <div class="content">
+                        <h2 class="title">Projeto 4</h2>
+                        <p class="description">Descrição do quarto projeto magnífico.</p>
+                        <div class="buttons">
+                            <a href="#">Código</a>
+                            <a href="#">Ver Projeto</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item" style="background-image: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=600&fit=crop');">
+                    <div class="content">
+                        <h2 class="title">Projeto 5</h2>
+                        <p class="description">Descrição do quinto projeto extraordinário.</p>
+                        <div class="buttons">
+                            <a href="#">Código</a>
+                            <a href="#">Ver Projeto</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <nav class="nav">
+                <button class="btn prev" onclick="prevSlide()">◀</button>
+                <button class="btn next" onclick="nextSlide()">▶</button>
+            </nav>
+        </main>
+    </div>
+
+    <script>
+        function nextSlide() {
+            const slider = document.getElementById('slider');
+            const items = slider.querySelectorAll('.item');
+            if (items.length === 0) return;
+
+            // Move the first item to the end (append)
+            slider.appendChild(items[0]);
+        }
+
+        function prevSlide() {
+            const slider = document.getElementById('slider');
+            const items = slider.querySelectorAll('.item');
+            if (items.length === 0) return;
+
+            // Move the last item to the beginning (prepend)
+            slider.prepend(items[items.length - 1]);
+        }
+    </script>
+</body>
+</html>

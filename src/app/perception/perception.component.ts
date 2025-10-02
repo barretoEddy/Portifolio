@@ -20,6 +20,8 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   private perceptionTitleRef!: ElementRef<HTMLHeadingElement>;
   @ViewChild('projectsContainer', { static: true, read: ElementRef })
   private projectsContainerRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('slider', { read: ElementRef })
+  private sliderRef?: ElementRef<HTMLUListElement>;
 
   private sanityService = inject(SanityService);
   private progressiveAnimationService = inject(ProgressiveAnimationService);
@@ -29,7 +31,17 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoading = false; // Mudando para false por padrão
   private animationSetup = false;
 
+  // Toggle functionality
+  viewMode: 'grid' | 'carousel' = 'grid';
+  currentCarouselIndex = 0;
+
   ngOnInit(): void {
+    // Recuperar preferência salva
+    const savedMode = localStorage.getItem('perception-view-mode') as 'grid' | 'carousel';
+    if (savedMode) {
+      this.viewMode = savedMode;
+    }
+
     // Usar dados mock imediatamente para evitar loading
     this.projects = this.getMockProjects();
 
@@ -205,5 +217,92 @@ export class PerceptionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   trackByTech(index: number, tech: string): string {
     return tech;
+  }
+
+  // Toggle functionality methods
+  switchView(mode: 'grid' | 'carousel'): void {
+    if (this.viewMode === mode) return;
+
+    const oldMode = this.viewMode;
+    this.viewMode = mode;
+
+    // Animação de transição entre views
+    this.animateViewTransition(oldMode, mode);
+
+    // Salvar preferência do usuário
+    localStorage.setItem('perception-view-mode', mode);
+  }
+
+  private animateViewTransition(from: string, to: string): void {
+    if (!this.projectsContainerRef?.nativeElement) return;
+
+    const container = this.projectsContainerRef.nativeElement;
+
+    gsap.timeline()
+      .to(container, {
+        opacity: 0,
+        y: 20,
+        duration: 0.3,
+        ease: "power2.out"
+      })
+      .call(() => {
+        // View change happens here
+        if (to === 'carousel') {
+          setTimeout(() => this.setupCarouselAnimations(), 100);
+        } else {
+          setTimeout(() => this.setupGridAnimations(), 100);
+        }
+      })
+      .to(container, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power2.out"
+      });
+  }
+
+  private setupCarouselAnimations(): void {
+    // Placeholder para animações do carrossel
+    console.log('Setting up carousel animations');
+  }
+
+  private setupGridAnimations(): void {
+    // Re-setup das animações do grid existente
+    if (this.projectsContainerRef?.nativeElement) {
+      const projectItems = this.projectsContainerRef.nativeElement.querySelectorAll('.project-item');
+      if (projectItems.length > 0) {
+        gsap.fromTo(projectItems,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.3,
+            ease: "power2.out"
+          }
+        );
+      }
+    }
+  }
+
+  // CodePen Carousel Methods
+  nextSlide(): void {
+    if (!this.sliderRef?.nativeElement) return;
+
+    const items = this.sliderRef.nativeElement.querySelectorAll('.item');
+    if (items.length === 0) return;
+
+    // Move the first item to the end (append)
+    this.sliderRef.nativeElement.appendChild(items[0]);
+  }
+
+  previousSlide(): void {
+    if (!this.sliderRef?.nativeElement) return;
+
+    const items = this.sliderRef.nativeElement.querySelectorAll('.item');
+    if (items.length === 0) return;
+
+    // Move the last item to the beginning (prepend)
+    this.sliderRef.nativeElement.prepend(items[items.length - 1]);
   }
 }

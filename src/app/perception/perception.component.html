@@ -1,5 +1,32 @@
 <div class="portfolio-content container" #perceptionSection>
-  <h2 class="section-title" #perceptionTitle>Meus Projetos</h2>
+  <div class="section-header">
+    <h2 class="section-title" #perceptionTitle>Meus Projetos</h2>
+
+    <!-- Toggle Control -->
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'grid'"
+        (click)="switchView('grid')"
+        aria-label="Visualização em Grade">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/>
+        </svg>
+        <span>Grade</span>
+      </button>
+
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'carousel'"
+        (click)="switchView('carousel')"
+        aria-label="Visualização em Carrossel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+        </svg>
+        <span>Carrossel</span>
+      </button>
+    </div>
+  </div>
 
   <div *ngIf="isLoading; else content" class="loading-state">
     <div class="loading-container">
@@ -20,67 +47,112 @@
       <div class="no-projects" *ngIf="projects.length === 0">
         <p>Nenhum projeto encontrado.</p>
       </div>
-      <div class="project-item" 
-           *ngFor="let project of projects; let i = index"
-           [class.text-right]="i % 2 !== 0"
-           [attr.data-project-index]="i">
 
-          <div class="project-image"
-               [attr.data-project-index]="i">
-            <a *ngIf="project.liveUrl" [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
-              <img [src]="getProjectImageUrl(project.mainImage)"
+      <!-- GRID VIEW (layout atual) -->
+      <div *ngIf="viewMode === 'grid'" class="grid-view">
+        <div class="project-item"
+             *ngFor="let project of projects; let i = index"
+             [class.text-right]="i % 2 !== 0"
+             [attr.data-project-index]="i">
+
+            <div class="project-image"
+                 [attr.data-project-index]="i">
+              <a *ngIf="project.liveUrl" [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
+                <img [src]="getProjectImageUrl(project.mainImage)"
+                     [alt]="project.title"
+                     class="project-img">
+              </a>
+              <img *ngIf="!project.liveUrl"
+                   [src]="getProjectImageUrl(project.mainImage)"
                    [alt]="project.title"
                    class="project-img">
-            </a>
-            <img *ngIf="!project.liveUrl"
-                 [src]="getProjectImageUrl(project.mainImage)"
-                 [alt]="project.title"
-                 class="project-img">
-          </div>
-
-          <div class="project-info"
-               [attr.data-project-index]="i">
-            <h3 class="project-title">
-              <a *ngIf="project.liveUrl"
-                 [href]="project.liveUrl"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="title-link">
-                <span class="title-text">{{ project.title }}</span>
-              </a>
-              <span *ngIf="!project.liveUrl" class="title-text">{{ project.title }}</span>
-            </h3>
-
-            <div class="project-description">
-              <p>{{ project.description }}</p>
             </div>
 
-            <ul class="project-tech-list">
-              <li class="tech-item" *ngFor="let tech of project.technologies">
-                {{ tech }}
-              </li>
-            </ul>
+            <div class="project-info"
+                 [attr.data-project-index]="i">
+              <h3 class="project-title">
+                <a *ngIf="project.liveUrl"
+                   [href]="project.liveUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="title-link">
+                  <span class="title-text">{{ project.title }}</span>
+                </a>
+                <span *ngIf="!project.liveUrl" class="title-text">{{ project.title }}</span>
+              </h3>
 
-            <div class="project-links">
-              <a [href]="project.repoUrl"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 aria-label="GitHub"
-                 class="link-button github-link">
-                <span class="link-text">Código</span>
-              </a>
-              <a *ngIf="project.liveUrl"
-                 [href]="project.liveUrl"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 aria-label="External Link"
-                 class="link-button live-link">
-                <span class="link-text">Ver Projeto</span>
-              </a>
+              <div class="project-description">
+                <p>{{ project.description }}</p>
+              </div>
+
+              <ul class="project-tech-list">
+                <li class="tech-item" *ngFor="let tech of project.technologies">
+                  {{ tech }}
+                </li>
+              </ul>
+
+              <div class="project-links">
+                <a [href]="project.repoUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="GitHub"
+                   class="link-button github-link">
+                  <span class="link-text">Código</span>
+                </a>
+                <a *ngIf="project.liveUrl"
+                   [href]="project.liveUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="External Link"
+                   class="link-button live-link">
+                  <span class="link-text">Ver Projeto</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      
+      </div>
+
+      <!-- CAROUSEL VIEW (CodePen Reference) -->
+      <div *ngIf="viewMode === 'carousel'" class="carousel-view">
+        <main class="carousel-main">
+          <ul class="slider" #slider>
+            <li class="item"
+                *ngFor="let project of projects; let i = index"
+                [style.background-image]="'url(' + getProjectImageUrl(project.mainImage) + ')'">
+              <div class="content">
+                <h2 class="title">{{ project.title }}</h2>
+                <p class="description">{{ project.description }}</p>
+
+                <div class="tech-list">
+                  <span *ngFor="let tech of project.technologies" class="tech-tag">{{ tech }}</span>
+                </div>
+
+                <div class="buttons">
+                  <a [href]="project.repoUrl" target="_blank" rel="noopener noreferrer">
+                    Código
+                  </a>
+                  <a *ngIf="project.liveUrl" [href]="project.liveUrl" target="_blank" rel="noopener noreferrer">
+                    Ver Projeto
+                  </a>
+                </div>
+              </div>
+            </li>
+          </ul>
+
+          <nav class="nav">
+            <button class="btn prev" (click)="previousSlide()" aria-label="Anterior">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+              </svg>
+            </button>
+            <button class="btn next" (click)="nextSlide()" aria-label="Próximo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+              </svg>
+            </button>
+          </nav>
+        </main>
+      </div>
     </div>
   </ng-template>
 </div>
