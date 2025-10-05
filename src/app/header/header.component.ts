@@ -24,6 +24,7 @@ export class HeaderComponent implements OnInit {
   isAdmin = signal(false);
   userFullName = signal<string | null>(null);
   isHomePage = signal(true); // Controla se mostra o logo
+  needsBackground = signal(false); // Controla se precisa de fundo (dashboard/contato)
 
   // Texto dinâmico do botão baseado no estado
   buttonText = computed(() => {
@@ -54,7 +55,7 @@ export class HeaderComponent implements OnInit {
   });
 
   ngOnInit() {
-    // Detectar mudanças de rota para controlar o logo
+    // Detectar mudanças de rota para controlar o logo e o fundo
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -63,6 +64,11 @@ export class HeaderComponent implements OnInit {
                       event.urlAfterRedirects === '' ||
                       event.urlAfterRedirects.startsWith('/blog');
       this.isHomePage.set(showLogo);
+
+      // Fundo aparece no dashboard e contato
+      const needsBg = event.urlAfterRedirects.includes('/admin/dashboard') ||
+                      event.urlAfterRedirects.includes('/protected-contact');
+      this.needsBackground.set(needsBg);
     });
 
     // Verificar rota inicial
@@ -71,6 +77,11 @@ export class HeaderComponent implements OnInit {
                     currentUrl === '' ||
                     currentUrl.startsWith('/blog');
     this.isHomePage.set(showLogo);
+
+    // Verificar se precisa de fundo na rota inicial
+    const needsBg = currentUrl.includes('/admin/dashboard') ||
+                    currentUrl.includes('/protected-contact');
+    this.needsBackground.set(needsBg);
 
     // Observar mudanças no estado de autenticação do AuthService
     this.authService.currentUser.subscribe(user => {

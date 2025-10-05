@@ -4,7 +4,7 @@ header {
   top: 0;
   left: 0;
   z-index: 1000;
-  transition: background-color 0.4s ease, padding 0.4s ease;
+  transition: background-color 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
   padding: 25px 0;
 }
 
@@ -13,6 +13,19 @@ header.scrolled {
   padding: 15px 0;
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Fundo escuro para páginas específicas (dashboard e contato) */
+header.with-background {
+  background-color: rgba(10, 25, 47, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+header.with-background.scrolled {
+  background-color: rgba(10, 25, 47, 0.98);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 nav {

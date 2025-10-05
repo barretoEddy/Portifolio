@@ -1,4 +1,4 @@
-<header [class.scrolled]="headerScrolled()">
+<header [class.scrolled]="headerScrolled()" [class.with-background]="needsBackground()">
   <nav class="container" [class.no-logo]="!isHomePage()">
     <!-- Logo só aparece na home -->
     <a *ngIf="isHomePage()"
