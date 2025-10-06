@@ -2,29 +2,35 @@
 
 .main-content {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw; /* Previne overflow horizontal */
   padding-top: 120px; /* Espaço para o header fixo - aplicado por padrão */
+  overflow: visible; /* Permite que o menu hambúrguer apareça */
 }
 
 main > section {
   position: relative;
   padding: 100px 0;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw; /* Garante que não ultrapasse a viewport */
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible; /* Permite que o menu hambúrguer apareça sobre as seções */
   /* Aplicamos a cor de fundo primária a TODAS as seções */
   background-color: var(--color-primary);
 }
 
 /* A ordem de empilhamento (z-index) ainda é necessária para o pinning funcionar */
+/* IMPORTANTE: Header tem z-index: 1000, então essas seções ficam abaixo */
 #hero { z-index: 5; }
 #cabin { z-index: 4; }
 #maintenance { z-index: 3; }
 
 /* Permite overflow visível para o elemento pinado (evita que ancestors com overflow:hidden cortem o pin) */
 #maintenance {
-  overflow: visible;
+  overflow: visible; /* Permite overflow para o pin e para o menu */
 }
 #perception { z-index: 2; }
 #conclusion {
