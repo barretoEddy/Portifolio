@@ -35,21 +35,32 @@ nav {
   height: 60px; /* Altura fixa para melhor alinhamento */
 }
 
-/* Quando não há logo, centralizar a navegação */
+/* Quando não há logo, manter espaço para o hamburguer no mobile */
 nav.no-logo {
-  justify-content: center;
+  justify-content: space-between;
 }
 
-/* No mobile, quando não há logo, ajustar menu icon */
-@media (max-width: 768px) {
+/* No desktop (acima de 1024px), quando não há logo, centralizar os links */
+@media (min-width: 1025px) {
   nav.no-logo {
-    justify-content: flex-end;
+    justify-content: center;
+  }
+}
+
+/* Em tablets e mobile, quando não há logo, garantir layout correto */
+@media (max-width: 1024px) {
+  nav.no-logo {
+    justify-content: space-between;
     position: relative;
   }
 
+  nav.no-logo .menu-icon {
+    display: flex !important; /* Força exibição do hambúrguer */
+  }
+
   nav.no-logo .nav-links {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    transform: none;
   }
 }
 
@@ -62,6 +73,20 @@ nav.no-logo {
   align-items: center;
 }
 
+/* Espaçador invisível para manter layout quando não há logo */
+.logo-spacer {
+  width: 32px;
+  height: 32px;
+  visibility: hidden;
+}
+
+/* No desktop, esconder o espaçador */
+@media (min-width: 769px) {
+  .logo-spacer {
+    display: none;
+  }
+}
+
 .nav-links {
   display: flex;
   list-style: none;
@@ -69,6 +94,17 @@ nav.no-logo {
   align-items: center;
   margin: 0;
   padding: 0;
+}
+
+/* No desktop, esconder links do menu quando estiver em mobile/tablet */
+@media (max-width: 1024px) {
+  .nav-links {
+    display: none; /* Esconde por padrão em telas menores */
+  }
+
+  .nav-links.active {
+    display: flex; /* Mostra quando menu está ativo */
+  }
 }
 
 .nav-links a {
@@ -201,15 +237,35 @@ nav.no-logo {
   justify-content: center;
   border-radius: 8px;
   transition: all 0.3s ease;
+  background: rgba(100, 255, 218, 0.1);
+  padding: 4px;
 }
 
-/* Estilos para mobile */
-@media (max-width: 768px) {
+.menu-icon:hover {
+  background: rgba(100, 255, 218, 0.2);
+}
+
+/* Estilos para mobile e tablet */
+@media (max-width: 1024px) {
+  /* SEMPRE mostrar o menu icon em telas menores */
+  .menu-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-icon:hover {
+    transform: scale(1.1);
+    color: #64ffda;
+  }
+
+  /* Menu lateral em mobile/tablet */
   .nav-links {
     position: fixed;
     top: 0;
     right: -100%;
     width: 70%;
+    max-width: 350px;
     height: 100vh;
     background: linear-gradient(135deg, var(--color-secondary), rgba(10, 25, 47, 0.95));
     backdrop-filter: blur(15px);
@@ -219,17 +275,19 @@ nav.no-logo {
     transition: right 0.5s ease-in-out;
     gap: 40px;
     border-left: 1px solid rgba(100, 255, 218, 0.2);
+    z-index: 1000;
   }
 
   .nav-links.active {
     right: 0;
+    display: flex; /* Força exibição quando ativo */
   }
 
   .nav-links a {
     font-size: 1.2rem;
     padding: 15px 25px;
     width: 200px;
-    height: 50px; /* Altura maior no mobile */
+    height: 50px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -237,20 +295,7 @@ nav.no-logo {
   }
 
   .nav-links a:hover {
-    transform: scale(1.1);
-    /* Removido box-shadow que estava vazando no mobile */
-  }
-
-  .menu-icon {
-    display: flex; /* Mudou de block para flex */
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
-  }
-
-  .menu-icon:hover {
-    transform: scale(1.1);
-    color: #64ffda;
+    transform: scale(1.05);
   }
 
   .contact-button {
@@ -258,6 +303,8 @@ nav.no-logo {
     margin-top: 1rem;
     font-size: 1rem;
     padding: 1rem 2rem;
+    height: 50px;
+    width: 200px;
   }
 
   .logout-button {
@@ -265,5 +312,24 @@ nav.no-logo {
     margin-top: 0.5rem;
     font-size: 0.9rem;
     padding: 0.7rem 1.5rem;
+    height: 45px;
+    width: 200px;
+  }
+}
+
+/* Ajustes específicos para mobile menor */
+@media (max-width: 480px) {
+  .nav-links {
+    width: 80%;
+  }
+
+  .nav-links a {
+    font-size: 1.1rem;
+    width: 180px;
+  }
+
+  .contact-button,
+  .logout-button {
+    width: 180px;
   }
 }
