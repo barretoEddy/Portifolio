@@ -41,6 +41,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./blog/blog-post/blog-post.component').then(m => m.BlogPostComponent)
   },
+  // Páginas legais
+  {
+    path: 'termos-de-uso',
+    loadComponent: () =>
+      import('./legal/terms-of-service/terms-of-service.component').then(m => m.TermsOfServiceComponent)
+  },
+  {
+    path: 'politica-privacidade',
+    loadComponent: () =>
+      import('./legal/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+  },
   // Rota wildcard para redirecionar qualquer URL não encontrada para a página inicial
   {
     path: '**',

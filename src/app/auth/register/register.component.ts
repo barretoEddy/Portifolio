@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { PolicyModalComponent, PolicyType } from '../../shared/policy-modal/policy-modal.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PolicyModalComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.complex.css'
 })
@@ -17,6 +18,10 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isAdminAccess = false;
+  
+  // Modal state
+  isModalOpen = false;
+  modalPolicyType: PolicyType = 'terms';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -191,5 +196,22 @@ export class RegisterComponent implements OnInit {
     Object.keys(this.registerForm.controls).forEach(key => {
       this.registerForm.get(key)?.markAsTouched();
     });
+  }
+
+  // Modal methods
+  openTermsModal(event: Event): void {
+    event.preventDefault();
+    this.modalPolicyType = 'terms';
+    this.isModalOpen = true;
+  }
+
+  openPrivacyModal(event: Event): void {
+    event.preventDefault();
+    this.modalPolicyType = 'privacy';
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
   }
 }

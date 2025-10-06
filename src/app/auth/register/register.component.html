@@ -135,7 +135,7 @@
           >
           <span class="checkbox-custom"></span>
           <span class="checkbox-text">
-            Aceito os <a href="#" class="link">termos de uso</a> e <a href="#" class="link">política de privacidade</a>
+            Aceito os <a href="#" class="link" (click)="openTermsModal($event)">termos de uso</a> e <a href="#" class="link" (click)="openPrivacyModal($event)">política de privacidade</a>
           </span>
         </label>
         <div class="form-error" *ngIf="registerForm.get('acceptTerms')?.invalid && registerForm.get('acceptTerms')?.touched">
@@ -186,3 +186,10 @@
     </form>
   </div>
 </div>
+
+<!-- Policy Modal -->
+<app-policy-modal
+  [isOpen]="isModalOpen"
+  [policyType]="modalPolicyType"
+  (close)="closeModal()"
+></app-policy-modal>

@@ -1,0 +1,139 @@
+<div class="legal-container">
+  <div class="legal-content">
+    <!-- Cabeçalho -->
+    <header class="legal-header">
+      <a routerLink="/" class="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Voltar</span>
+      </a>
+      <h1>Termos de Uso</h1>
+      <p class="last-update">Última atualização: {{ lastUpdated | date:'dd/MM/yyyy' }}</p>
+    </header>
+
+    <!-- Conteúdo -->
+    <article class="legal-article">
+      <section class="legal-section">
+        <h2>1. Aceitação dos Termos</h2>
+        <p>
+          Ao acessar e utilizar este portfólio e sistema de contato ("Serviço"), você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. Se você não concordar com qualquer parte destes termos, não deverá utilizar este Serviço.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>2. Descrição do Serviço</h2>
+        <p>
+          Este Serviço fornece:
+        </p>
+        <ul>
+          <li>Portfólio profissional com projetos e informações de contato</li>
+          <li>Sistema de registro para área de contato personalizada</li>
+          <li>Formulário avançado de contato para usuários registrados</li>
+          <li>Blog técnico com artigos sobre desenvolvimento de software</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>3. Registro de Conta</h2>
+        <p>
+          Para acessar determinadas funcionalidades do Serviço, você precisa criar uma conta fornecendo:
+        </p>
+        <ul>
+          <li>Nome completo</li>
+          <li>Endereço de e-mail válido</li>
+          <li>Senha segura</li>
+          <li>Empresa (opcional)</li>
+        </ul>
+        <p>
+          Você é responsável por manter a confidencialidade de sua conta e senha, e por todas as atividades que ocorram sob sua conta.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>4. Uso Aceitável</h2>
+        <p>
+          Ao utilizar este Serviço, você concorda em:
+        </p>
+        <ul>
+          <li>Fornecer informações verdadeiras e precisas</li>
+          <li>Não utilizar o Serviço para fins ilegais ou não autorizados</li>
+          <li>Não tentar obter acesso não autorizado ao sistema</li>
+          <li>Não enviar spam, malware ou conteúdo malicioso</li>
+          <li>Não usar o Serviço de forma que possa danificá-lo ou prejudicar seu funcionamento</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>5. Propriedade Intelectual</h2>
+        <p>
+          Todo o conteúdo presente neste Serviço, incluindo mas não limitado a textos, gráficos, logotipos, imagens, código-fonte e design, é de propriedade exclusiva do desenvolvedor e está protegido por leis de direitos autorais.
+        </p>
+        <p>
+          Você não pode reproduzir, distribuir, modificar ou criar obras derivadas sem permissão expressa.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>6. Privacidade dos Dados</h2>
+        <p>
+          O uso de seus dados pessoais está sujeito à nossa 
+          <a routerLink="/politica-privacidade" class="legal-link">Política de Privacidade</a>, 
+          que você deve ler cuidadosamente para entender como coletamos, usamos e protegemos suas informações.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>7. Limitação de Responsabilidade</h2>
+        <p>
+          Este Serviço é fornecido "como está", sem garantias de qualquer tipo. Não nos responsabilizamos por:
+        </p>
+        <ul>
+          <li>Perda de dados ou informações</li>
+          <li>Interrupções ou indisponibilidade do serviço</li>
+          <li>Danos diretos, indiretos, incidentais ou consequenciais</li>
+          <li>Uso indevido de informações por terceiros</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>8. Modificações dos Termos</h2>
+        <p>
+          Reservamo-nos o direito de modificar estes Termos de Uso a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação. O uso continuado do Serviço após as modificações constitui aceitação dos novos termos.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>9. Encerramento</h2>
+        <p>
+          Podemos encerrar ou suspender seu acesso ao Serviço imediatamente, sem aviso prévio, por qualquer motivo, incluindo violação destes Termos de Uso.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>10. Lei Aplicável</h2>
+        <p>
+          Estes Termos de Uso são regidos pelas leis brasileiras. Qualquer disputa relacionada a estes termos será resolvida nos tribunais competentes do Brasil.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h2>11. Contato</h2>
+        <p>
+          Se você tiver dúvidas sobre estes Termos de Uso, entre em contato através do formulário disponível no site ou pelo e-mail fornecido na página de contato.
+        </p>
+      </section>
+    </article>
+
+    <!-- Rodapé -->
+    <footer class="legal-footer">
+      <div class="footer-actions">
+        <a routerLink="/politica-privacidade" class="btn-secondary">Ver Política de Privacidade</a>
+        <a routerLink="/" class="btn-primary">Voltar ao Portfólio</a>
+      </div>
+      <p class="footer-note">
+        Ao utilizar este serviço, você concorda com estes Termos de Uso e com nossa Política de Privacidade.
+      </p>
+    </footer>
+  </div>
+</div>
