@@ -88,7 +88,7 @@
     max-width: 700px;
     height: clamp(400px, 50vh, 600px);
   }
-  
+
   .hero-content {
     margin-bottom: 2.5rem;
   }
@@ -111,7 +111,7 @@
     margin-bottom: 1.5rem;
     margin-top: 1rem;
   }
-  
+
   .spline-keyboard:hover {
     transform: translateY(-5px) scale(1.01);
   }
@@ -122,11 +122,11 @@
   .hero-section {
     padding-top: 80px;
   }
-  
+
   .keyboard-container {
     height: clamp(250px, 40vh, 350px);
   }
-  
+
   .hero-content {
     margin-bottom: 1rem;
   }
@@ -137,7 +137,7 @@
   .keyboard-container {
     height: clamp(220px, 35vh, 300px);
   }
-  
+
   .hero-title {
     font-size: clamp(1.25rem, 4.5vw, 1.75rem);
   }
@@ -150,16 +150,16 @@
     padding-bottom: 2rem;
     min-height: auto;
   }
-  
+
   .hero-content {
     margin-bottom: 1rem;
   }
-  
+
   .keyboard-container {
     height: clamp(200px, 50vh, 350px);
     max-width: 600px;
   }
-  
+
   .hero-title {
     font-size: clamp(1.25rem, 3vw, 1.75rem);
     margin-bottom: 1rem;
@@ -172,21 +172,21 @@
     padding-top: 70px;
     padding-bottom: 1rem;
   }
-  
+
   .hero-content {
     margin-bottom: 0.75rem;
   }
-  
+
   .keyboard-container {
     height: clamp(180px, 45vh, 280px);
     max-width: 500px;
   }
-  
+
   .hero-title {
     font-size: clamp(1rem, 2.5vw, 1.5rem);
     margin-bottom: 0.75rem;
   }
-  
+
   .spline-keyboard:hover {
     transform: translateY(-3px);
   }
