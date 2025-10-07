@@ -35,6 +35,20 @@ jobs:
           node -v
           npx ng version
 
+      - name: Configure Environment Variables
+        run: |
+          echo "🔧 Configurando variáveis de ambiente para produção..."
+          cat > .env << EOF
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          EOF
+          echo "✅ Arquivo .env criado"
+          
+          echo "🔄 Gerando environment.prod.ts..."
+          npm run config:env:prod
+          echo "✅ environment.prod.ts configurado"
+
       - name: Build (prod) with base-href
         run: npm run build:ghpages
 
