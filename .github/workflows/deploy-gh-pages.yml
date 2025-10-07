@@ -43,27 +43,22 @@ jobs:
           echo "Conteúdo de dist após build:"
           ls -R dist || true
 
-      - name: Detect build directory and add SPA fallback
+      - name: Add SPA fallback (404.html)
         run: |
-          set -eux
-            if [ -f dist/browser/browser/index.html ]; then
-              BUILD_DIR="dist/browser/browser"
-            elif [ -f dist/myapp/browser/index.html ]; then
-              BUILD_DIR="dist/myapp/browser"
-            else
-              echo "index.html não encontrado. Abortando."
-              ls -R dist || true
-              exit 1
-            fi
-            echo "Build directory detectado: $BUILD_DIR"
-            cp "$BUILD_DIR/index.html" "$BUILD_DIR/404.html"
-            echo "404.html criado."
-            echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+          if [ -f dist/browser/browser/index.html ]; then
+            echo "✅ Found index.html in dist/browser/browser/"
+            cp dist/browser/browser/index.html dist/browser/browser/404.html
+            echo "✅ Created 404.html for SPA routing"
+          else
+            echo "❌ index.html not found in expected location"
+            ls -R dist
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.BUILD_DIR }}
+          path: ./dist/browser/browser
 
   deploy:
     environment:
