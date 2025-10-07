@@ -61,7 +61,42 @@ export class SupabaseService {
           autoRefreshToken: true,
           persistSession: true,
           detectSessionInUrl: true,
-          flowType: 'pkce'
+          flowType: 'pkce',
+          // Implementar lock customizado que sempre permite aquisição
+          lock: async (name: string, acquireTimeout: number, fn: () => Promise<any>) => {
+            // Implementação que ignora locks e executa diretamente
+            // Isso evita conflitos de NavigatorLockManager
+            try {
+              return await fn();
+            } catch (error) {
+              console.warn('Erro no lock customizado:', error);
+              throw error;
+            }
+          },
+          // Configurar storage customizado com tratamento de erros
+          storage: {
+            getItem: (key: string) => {
+              try {
+                return localStorage.getItem(key);
+              } catch {
+                return null;
+              }
+            },
+            setItem: (key: string, value: string) => {
+              try {
+                localStorage.setItem(key, value);
+              } catch {
+                // Silenciosamente ignorar erros de storage
+              }
+            },
+            removeItem: (key: string) => {
+              try {
+                localStorage.removeItem(key);
+              } catch {
+                // Silenciosamente ignorar erros de storage
+              }
+            }
+          }
         },
         global: {
           headers: {
@@ -101,9 +136,11 @@ export class SupabaseService {
   // Método para limpar locks órfãos que podem causar conflitos
   private clearOrphanedLocks(): void {
     try {
-      // Limpar keys relacionadas a locks do Supabase que podem estar órfãs
+      // 1. Limpar keys relacionadas a locks do Supabase
       const authKeys = Object.keys(localStorage).filter(key =>
-        key.includes('sb-') && key.includes('auth-token')
+        key.includes('sb-') || 
+        key.includes('supabase.auth.token') ||
+        key.includes('auth-token')
       );
 
       authKeys.forEach(key => {
@@ -123,6 +160,19 @@ export class SupabaseService {
           // console.log(`Removido key problemático: ${key}`);
         }
       });
+
+      // 2. Tentar liberar locks ativos do Navigator (se disponível)
+      if ('locks' in navigator && typeof (navigator as any).locks?.query === 'function') {
+        (navigator as any).locks.query().then((locks: any) => {
+          if (locks && locks.held && locks.held.length > 0) {
+            // console.log('🔒 Locks ativos detectados:', locks.held.map((l: any) => l.name));
+            // Infelizmente não podemos forçar release de locks de outras abas
+            // mas podemos logar para debug
+          }
+        }).catch(() => {
+          // Silenciosamente ignorar se locks API não estiver disponível
+        });
+      }
     } catch (error) {
       // console.warn('Erro ao limpar locks órfãos:', error);
     }
