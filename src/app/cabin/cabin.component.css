@@ -359,6 +359,34 @@
 
   .about-content {
     order: 2;
+    display: flex;
+    justify-content: center;
+  }
+
+  .content-wrapper {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .about-title {
+    text-align: center;
+  }
+
+  .about-description {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .tech-stack {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .tech-title {
+    text-align: center;
   }
 
   .about-image {
@@ -367,10 +395,12 @@
 
   .tech-grid {
     grid-template-columns: repeat(2, 1fr);
+    margin: 0 auto;
   }
 
   .cta-buttons {
     justify-content: center;
+    width: 100%;
   }
 }
 
