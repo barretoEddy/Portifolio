@@ -138,7 +138,7 @@ export class SupabaseService {
     try {
       // 1. Limpar keys relacionadas a locks do Supabase
       const authKeys = Object.keys(localStorage).filter(key =>
-        key.includes('sb-') || 
+        key.includes('sb-') ||
         key.includes('supabase.auth.token') ||
         key.includes('auth-token')
       );

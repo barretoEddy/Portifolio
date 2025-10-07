@@ -32,15 +32,14 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   }
 
   private setupTextAnimations(): void {
+    // Animar apenas o título que existe no DOM
     gsap.fromTo('.hero-title',
       { opacity: 0, y: 50 },
       { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.3 }
     );
 
-    gsap.fromTo('.hero-description',
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.6 }
-    );
+    // Remover animação de .hero-description pois não existe no HTML
+    // Se precisar adicionar uma descrição futuramente, adicione também no HTML
   }
 
   private setupSplineObserver(): void {
