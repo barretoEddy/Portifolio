@@ -46,8 +46,8 @@ jobs:
       - name: Detect build directory and add SPA fallback
         run: |
           set -eux
-            if [ -f dist/browser/index.html ]; then
-              BUILD_DIR="dist/browser"
+            if [ -f dist/browser/browser/index.html ]; then
+              BUILD_DIR="dist/browser/browser"
             elif [ -f dist/myapp/browser/index.html ]; then
               BUILD_DIR="dist/myapp/browser"
             else
