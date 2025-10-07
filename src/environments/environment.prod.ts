@@ -1,10 +1,8 @@
+// Este arquivo será gerado automaticamente pelo script set-env-prod.js
+// Não edite manualmente! Use o arquivo .env na raiz do projeto
 export const environment = {
   production: true,
   supabase: {
-    // ⚠️ SUBSTITUA PELAS CREDENCIAIS DO SEU PROJETO SUPABASE
-    // 1. Acesse: https://supabase.com/dashboard
-    // 2. Use as MESMAS credenciais do environment.ts
-    // 3. Para produção, considere um projeto separado
     url: 'YOUR_SUPABASE_URL_HERE',
     anonKey: 'YOUR_SUPABASE_ANON_KEY_HERE'
   },
