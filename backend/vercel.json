@@ -8,12 +8,28 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
       "src": "/health",
       "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/gemini/generate",
+      "dest": "/api/gemini/generate.js"
+    },
+    {
+      "src": "/api/sanity/query",
+      "dest": "/api/sanity/query.js"
+    },
+    {
+      "src": "/api/sanity/mutate",
+      "dest": "/api/sanity/mutate.js"
+    },
+    {
+      "src": "/api/sanity/chat",
+      "dest": "/api/sanity/chat.js"
+    },
+    {
+      "src": "/api/proxy",
+      "dest": "/api/proxy.js"
     },
     {
       "src": "/",
