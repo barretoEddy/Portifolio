@@ -31,13 +31,11 @@ export class GeminiAiService {
       const prompt = this.buildPrompt(request);
 
       console.log('🔍 Testando URL da API:', this.apiUrl);
-      console.log('🔍 API Key (primeiros 10 chars):', environment.geminiApiKey?.substring(0, 10) + '...');
 
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': environment.geminiApiKey
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           contents: [{
@@ -223,8 +221,7 @@ Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': environment.geminiApiKey
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           contents: [{
@@ -263,8 +260,7 @@ Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
         const response = await fetch(testUrl, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'X-goog-api-key': environment.geminiApiKey
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             contents: [{

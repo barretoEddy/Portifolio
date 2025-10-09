@@ -1,7 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { createClient, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { GeneratedPost } from './gemini-ai.service';
+import { BackendApiService } from './backend-api.service';
+import { environment } from '../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 // Interface para o Projeto
 export interface Project {
@@ -41,14 +44,16 @@ export interface CreatePostRequest {
 export class SanityService {
   private client: SanityClient;
   private builder: any;
+  private backendApi = inject(BackendApiService);
 
   constructor() {
+    // Cliente Sanity APENAS para leitura (sem token)
     this.client = createClient({
-      projectId: 'qacw4twj', // MANTENHA O SEU PROJECT ID CORRETO
-      dataset: 'production',
-      useCdn: true,
-      apiVersion: '2024-05-20',
-      token: 'skqg7otrXLniVCnuoG4RN58MwFdWBizrH8edm0uIGkQ577B7LpaeC6d8E1V03WZhmc6iEKQnFhiojiSOVnkQ1q3FE9hmmmPHdBspCaaZsEcUT17DkJFGZRB4uiJZpQai7AeP9oG7SrLAkSsogBYgSOYD6W1DYwG0Z2dsNczsNaOt51TGTw5n' // Necessário para operações de escrita
+      projectId: environment.sanity?.projectId || 'qacw4twj',
+      dataset: environment.sanity?.dataset || 'production',
+      useCdn: environment.sanity?.useCdn ?? true,
+      apiVersion: environment.sanity?.apiVersion || '2024-05-20',
+      // ⚠️ SEM TOKEN! Operações de escrita via backend
     });
     this.builder = imageUrlBuilder(this.client);
   }
@@ -72,7 +77,7 @@ export class SanityService {
     return this.client.fetch(query, { slug });
   }
 
-  // Criar novo post a partir do conteúdo gerado por IA
+  // ⚡ ATUALIZADO: Criar novo post via BACKEND (seguro)
   async createPostFromAI(generatedPost: GeneratedPost): Promise<any> {
     try {
       const doc = {
@@ -89,8 +94,11 @@ export class SanityService {
         // keywords podem ser armazenadas em um campo customizado se necessário
       };
 
-      const result = await this.client.create(doc);
-      console.log('Post criado no Sanity:', result);
+      // ⚡ Usar backend para criar documento (mutation)
+      const mutations = [{ create: doc }];
+      const result = await firstValueFrom(this.backendApi.mutateSanity(mutations));
+
+      console.log('Post criado no Sanity via backend:', result);
       return result;
 
     } catch (error) {
@@ -99,7 +107,7 @@ export class SanityService {
     }
   }
 
-  // Verificar se slug já existe
+  // ✅ Verificar slug continua sendo leitura (pode usar client local)
   async checkSlugExists(slug: string): Promise<boolean> {
     const query = '*[_type == "post" && slug.current == $slug]';
     const results = await this.client.fetch(query, { slug });
@@ -119,7 +127,7 @@ export class SanityService {
     return slug;
   }
 
-  // Método mais robusto para criar post com verificação de slug
+  // ⚡ ATUALIZADO: Criar post via BACKEND (seguro)
   async createPost(request: CreatePostRequest): Promise<any> {
     try {
       // Verificar e gerar slug único se necessário
@@ -137,7 +145,9 @@ export class SanityService {
         publishedAt: new Date().toISOString()
       };
 
-      const result = await this.client.create(doc);
+      // ⚡ Usar backend para criar documento
+      const mutations = [{ create: doc }];
+      const result = await firstValueFrom(this.backendApi.mutateSanity(mutations));
       return result;
 
     } catch (error) {

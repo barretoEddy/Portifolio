@@ -38,11 +38,7 @@ testem.log
 /typings
 
 # Markdown files
-SUPABASE-SETUP-GUIDE.md
-AI-POST-GENERATOR-SETUP.md
-ENVIRONMENT-SETUP.md
-ENVIRONMENT-VARIABLES.md
-GITHUB-SECRETS-SETUP.md
+*md
 
 # System files
 .DS_Store
