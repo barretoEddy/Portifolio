@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { BackendApiService } from './backend-api.service';
+import { firstValueFrom } from 'rxjs';
 
 export interface PostGenerationRequest {
   topic: string;
@@ -22,7 +24,7 @@ export interface GeneratedPost {
   providedIn: 'root'
 })
 export class GeminiAiService {
-  private readonly apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  private backendApi = inject(BackendApiService);
 
   constructor() {}
 
@@ -30,54 +32,14 @@ export class GeminiAiService {
     try {
       const prompt = this.buildPrompt(request);
 
-      console.log('🔍 Testando URL da API:', this.apiUrl);
+      console.log('🔍 Gerando post via backend seguro...');
 
-      const response = await fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 1,
-            topP: 1,
-            maxOutputTokens: 2048,
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
-        })
-      });
+      // ⚡ USAR BACKEND em vez de chamar Gemini diretamente
+      const data = await firstValueFrom(
+        this.backendApi.generateWithGemini(prompt, 'gemini-2.0-flash-exp')
+      );
 
-      console.log('🔍 Response status:', response.status);
-      console.log('🔍 Response headers:', response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🔍 Error response body:', errorText);
-        throw new Error(`Erro da API: ${response.status} - ${errorText}`);
-      }      const data = await response.json();
+      console.log('✅ Resposta recebida do backend:', data);
 
       if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
         throw new Error('Resposta inválida da API');
@@ -215,24 +177,11 @@ Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
       .trim();
   }
 
-  // Método auxiliar para testar a conexão
+  // ⚡ ATUALIZADO: Testar conexão via backend
   async testConnection(): Promise<boolean> {
     try {
-      const response = await fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: 'Teste de conexão. Responda apenas: OK'
-            }]
-          }]
-        })
-      });
-
-      return response.ok;
+      const result = await firstValueFrom(this.backendApi.testConnection());
+      return result.status === 'ok';
     } catch {
       return false;
     }
