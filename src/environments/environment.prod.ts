@@ -2,9 +2,9 @@
 export const environment = {
   production: true,
 
-  // ✅ Backend API (ATUALIZAR após deploy do backend!)
-  backendUrl: 'https://seu-backend.vercel.app', // ⚠️ ATUALIZAR COM URL REAL!
-  backendApiKey: 'MinhaChaveSecreta123!@#', // Mesma senha do backend
+  // ✅ Backend API
+  backendUrl: 'https://portifolio-backend-delta.vercel.app',
+  backendApiKey: 'MinhaChaveSecreta123!@#',
 
   // Supabase (autenticação)
   supabase: {
