@@ -187,50 +187,10 @@ Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
     }
   }
 
-  // Método para testar diferentes URLs/modelos disponíveis
+  // ❌ REMOVIDO: Este método fazia chamadas diretas ao Gemini (inseguro)
+  // Agora usamos apenas o backend que já sabe qual modelo funciona
   async findWorkingModel(): Promise<string | null> {
-    const modelsToTest = [
-      'gemini-2.0-flash',           // ← Mais novo e funcionando
-      'gemini-1.5-flash',
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-pro',
-      'gemini-1.5-pro-latest',
-      'gemini-pro',                 // ← Descontinuado
-      'gemini-1.0-pro-latest'
-    ];
-
-    console.log('🔍 Testando modelos disponíveis...');
-
-    for (const model of modelsToTest) {
-      try {
-        const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-        console.log(`🔍 Testando: ${model}`);
-
-        const response = await fetch(testUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: 'Teste'
-              }]
-            }]
-          })
-        });
-
-        console.log(`🔍 ${model}: Status ${response.status}`);
-
-        if (response.ok) {
-          console.log(`✅ Modelo funcionando: ${model}`);
-          return model;
-        }
-      } catch (error) {
-        console.log(`❌ ${model}: Erro de conexão`);
-      }
-    }
-
-    return null;
+    // Sempre retorna o modelo que sabemos que funciona
+    return 'gemini-2.0-flash';
   }
 }

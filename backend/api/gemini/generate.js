@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { prompt, model = 'gemini-pro' } = req.body;
+    const { prompt, model = 'gemini-2.0-flash' } = req.body;
 
     if (!prompt) {
       return res.status(400).json({
@@ -33,20 +33,47 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Configurações padrão do Gemini (iguais ao frontend)
+    const requestBody = {
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 1,
+        topP: 1,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        }
+      ]
+    };
+
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
-      },
+      requestBody,
       {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 25000
+        timeout: 30000 // 30 segundos para conteúdo maior
       }
     );
 
