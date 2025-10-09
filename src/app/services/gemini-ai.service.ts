@@ -36,7 +36,7 @@ export class GeminiAiService {
 
       // ⚡ USAR BACKEND em vez de chamar Gemini diretamente
       const data = await firstValueFrom(
-        this.backendApi.generateWithGemini(prompt, 'gemini-2.0-flash-exp')
+        this.backendApi.generateWithGemini(prompt, 'gemini-2.0-flash')
       );
 
       console.log('✅ Resposta recebida do backend:', data);
