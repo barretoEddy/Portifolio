@@ -32,14 +32,10 @@ export class GeminiAiService {
     try {
       const prompt = this.buildPrompt(request);
 
-      console.log('🔍 Gerando post via backend seguro...');
-
       // ⚡ USAR BACKEND em vez de chamar Gemini diretamente
       const data = await firstValueFrom(
         this.backendApi.generateWithGemini(prompt, 'gemini-2.0-flash')
       );
-
-      console.log('✅ Resposta recebida do backend:', data);
 
       if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
         throw new Error('Resposta inválida da API');
@@ -49,7 +45,7 @@ export class GeminiAiService {
       return this.parseGeneratedContent(generatedText);
 
     } catch (error) {
-      console.error('Erro ao gerar post com Gemini:', error);
+      console.error('Erro ao gerar post:', error);
       throw new Error('Falha ao gerar conteúdo. Tente novamente.');
     }
   }
@@ -144,9 +140,6 @@ Responda APENAS com o JSON, sem texto adicional antes ou depois.`;
       };
 
     } catch (error) {
-      console.error('Erro ao fazer parse do conteúdo gerado:', error);
-      console.log('Conteúdo recebido:', content);
-
       // Fallback: tentar extrair manualmente
       return this.extractContentManually(content);
     }
