@@ -142,6 +142,7 @@
   position: relative;
   overflow: hidden;
   font-weight: 500;
+  z-index: 1;
 }.btn-back::before {
   content: '';
   position: absolute;
@@ -638,10 +639,17 @@
   .auth-content {
     padding: 1.5rem 1rem;
     margin: 0.5rem;
+    margin-top: 100px; /* Espaço para não sobrepor header */
   }
 
   .auth-title {
     font-size: 1.6rem;
+  }
+
+  .btn-back {
+    margin-top: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
   }
 }
 
