@@ -3,7 +3,7 @@ export const environment = {
   production: false,
 
   // ✅ Backend API (suas keys ficam seguras no backend!)
-  backendUrl: 'http://localhost:3000',
+  backendUrl: 'https://portifolio-backend-delta.vercel.app',
   backendApiKey: 'MinhaChaveSecreta123!@#',
 
   // Supabase (autenticação - ainda no frontend)
