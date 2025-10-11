@@ -6,28 +6,28 @@ const { authenticateBackendKey, handleCors } = require('../_middleware');
 module.exports = async (req, res) => {
   // Handle CORS
   if (handleCors(req, res)) return;
-  
+
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido. Use POST.' });
   }
-  
+
   // Authenticate
   const authError = authenticateBackendKey(req);
   if (authError) {
     return res.status(authError.status).json({ error: authError.error });
   }
-  
+
   try {
     if (!process.env.SANITY_TOKEN) {
-      return res.status(500).json({ 
-        error: 'SANITY_TOKEN não configurado no servidor' 
+      return res.status(500).json({
+        error: 'SANITY_TOKEN não configurado no servidor'
       });
     }
 
     if (!process.env.SANITY_PROJECT_ID) {
-      return res.status(500).json({ 
-        error: 'SANITY_PROJECT_ID não configurado no servidor' 
+      return res.status(500).json({
+        error: 'SANITY_PROJECT_ID não configurado no servidor'
       });
     }
 
@@ -35,14 +35,14 @@ module.exports = async (req, res) => {
     const dataset = process.env.SANITY_DATASET || 'production';
 
     if (!mutations || !Array.isArray(mutations)) {
-      return res.status(400).json({ 
-        error: 'O campo "mutations" é obrigatório e deve ser um array' 
+      return res.status(400).json({
+        error: 'O campo "mutations" é obrigatório e deve ser um array'
       });
     }
 
     if (mutations.length === 0) {
-      return res.status(400).json({ 
-        error: 'Array de mutations não pode estar vazio' 
+      return res.status(400).json({
+        error: 'Array de mutations não pode estar vazio'
       });
     }
 
@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
     if (error.response) {
       statusCode = error.response.status;
       errorMessage = error.response.data?.error || error.response.data?.message || errorMessage;
-      
+
       // Erros específicos do Sanity
       if (error.response.status === 401) {
         errorMessage = 'Token do Sanity inválido ou expirado';

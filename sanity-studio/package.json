@@ -15,11 +15,11 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^4.9.0",
+    "@sanity/vision": "^4.10.2",
     "easymde": "^2.20.0",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "sanity": "^4.9.0",
+    "sanity": "^4.10.2",
     "sanity-plugin-markdown": "^6.0.0",
     "styled-components": "^6.1.18"
   },

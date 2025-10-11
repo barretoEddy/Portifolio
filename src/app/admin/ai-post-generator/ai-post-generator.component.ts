@@ -32,7 +32,7 @@ import { SanityService } from '../../services/sanity.service';
               required
               [disabled]="isGenerating">
           </div>
-          
+
           <div class="form-group">
             <label for="category">Categoria</label>
             <input
@@ -78,8 +78,8 @@ import { SanityService } from '../../services/sanity.service';
         </div>
 
         <div class="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="test-btn"
             (click)="testGeminiConnection()"
             [disabled]="isGenerating || isTesting">
@@ -88,9 +88,9 @@ import { SanityService } from '../../services/sanity.service';
             </span>
             {{ isTesting ? 'Testando...' : 'Testar Conexão' }}
           </button>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             class="generate-btn"
             [disabled]="!request.topic || isGenerating || isTesting">
             <span class="btn-icon" [class.spinning]="isGenerating">
@@ -110,7 +110,7 @@ import { SanityService } from '../../services/sanity.service';
             <p>Conexão com Gemini funcionando!</p>
             <p class="test-details">Modelo: {{ testResult.model }}</p>
           </div>
-          
+
           <div class="error-message" *ngIf="!testResult.success">
             <span class="error-icon">❌</span>
             <p>Erro na conexão: {{ testResult.error }}</p>
@@ -130,15 +130,22 @@ import { SanityService } from '../../services/sanity.service';
           <div class="result-header">
             <h4>Post Gerado com Sucesso! 🎉</h4>
             <div class="result-actions">
-              <button class="action-btn save-btn" (click)="saveToSanity()" [disabled]="isSaving">
-                {{ isSaving ? 'Salvando...' : '📝 Salvar no Sanity' }}
-              </button>
-              <button class="action-btn copy-btn" (click)="copyToClipboard()">
-                📋 Copiar
-              </button>
-              <button class="action-btn clear-btn" (click)="clearResult()">
-                🗑️ Limpar
-              </button>
+              <div class="save-actions">
+                <button class="action-btn save-btn primary" (click)="saveAndEditInStudio()" [disabled]="isSaving">
+                  {{ isSaving ? 'Salvando...' : '� Salvar e Editar no Studio' }}
+                </button>
+                <button class="action-btn save-btn secondary" (click)="saveToSanity()" [disabled]="isSaving">
+                  {{ isSaving ? 'Salvando...' : '📝 Apenas Salvar' }}
+                </button>
+              </div>
+              <div class="other-actions">
+                <button class="action-btn copy-btn" (click)="copyToClipboard()">
+                  📋 Copiar
+                </button>
+                <button class="action-btn clear-btn" (click)="clearResult()">
+                  🗑️ Limpar
+                </button>
+              </div>
             </div>
           </div>
 
@@ -544,7 +551,7 @@ import { SanityService } from '../../services/sanity.service';
         flex-direction: column;
         align-items: stretch;
       }
-      
+
       .result-actions,
       .form-actions {
         justify-content: center;
@@ -580,10 +587,10 @@ export class AiPostGeneratorComponent {
 
     try {
       console.log('🔍 Iniciando teste de conexão...');
-      
+
       // Primeiro tenta encontrar um modelo que funciona
       const workingModel = await this.geminiService.findWorkingModel();
-      
+
       if (workingModel) {
         this.testResult = {
           success: true,
@@ -626,12 +633,67 @@ export class AiPostGeneratorComponent {
 
       // Gerar post
       this.generatedPost = await this.geminiService.generatePost(this.request);
-      
+
     } catch (error) {
       console.error('Erro ao gerar post:', error);
       this.error = error instanceof Error ? error.message : 'Erro desconhecido ao gerar o post';
     } finally {
       this.isGenerating = false;
+    }
+  }
+
+  async saveAndEditInStudio() {
+    if (!this.generatedPost) return;
+
+    this.isSaving = true;
+    try {
+      // Verificar conexão com Sanity
+      const isConnected = await this.sanityService.testConnection();
+      if (!isConnected) {
+        throw new Error('Não foi possível conectar ao Sanity. Verifique as configurações.');
+      }
+
+      // Salvar post no Sanity
+      const result = await this.sanityService.createPostFromAI(this.generatedPost);
+
+      console.log('Post salvo no Sanity:', result);
+
+      // Redirecionar automaticamente para o Sanity Studio
+      const studioUrl = `https://eddy-portfolio.sanity.studio/structure/posts;${result._id}`;
+      window.open(studioUrl, '_blank');
+
+      // Mostrar confirmação de sucesso
+      alert(
+        `✅ Post "${this.generatedPost.title}" salvo com sucesso!\n\n` +
+        `🚀 Sanity Studio foi aberto em nova aba para edição final.\n\n` +
+        `📝 Lá você pode:\n` +
+        `• Ajustar título e conteúdo\n` +
+        `• Adicionar imagens e mídia\n` +
+        `• Configurar SEO e metadados\n` +
+        `• Definir status (draft/published)\n` +
+        `• Agendar publicação\n\n` +
+        `💡 Dica: Mantenha esta aba aberta para gerar mais posts!`
+      );
+
+      // Limpar formulário após sucesso
+      this.clearResult();
+      this.clearForm();
+
+    } catch (error) {
+      console.error('Erro ao salvar no Sanity:', error);
+
+      let errorMessage = 'Erro ao salvar no Sanity.';
+      if (error instanceof Error) {
+        errorMessage += ` ${error.message}`;
+      }
+
+      if (error instanceof Error && error.message.includes('token')) {
+        errorMessage += '\n\n💡 Dica: Verifique se o token de escrita do Sanity está configurado corretamente no service.';
+      }
+
+      alert(errorMessage);
+    } finally {
+      this.isSaving = false;
     }
   }
 
@@ -648,26 +710,29 @@ export class AiPostGeneratorComponent {
 
       // Salvar post no Sanity
       const result = await this.sanityService.createPostFromAI(this.generatedPost);
-      
+
       console.log('Post salvo no Sanity:', result);
-      alert(`Post "${this.generatedPost.title}" salvo no Sanity com sucesso! 🎉\n\nID: ${result._id}`);
-      
+
+      // Mostrar confirmação simples
+      alert(`✅ Post "${this.generatedPost.title}" salvo no Sanity com sucesso!`);
+
+
       // Limpar formulário após sucesso
       this.clearResult();
       this.clearForm();
-      
+
     } catch (error) {
       console.error('Erro ao salvar no Sanity:', error);
-      
+
       let errorMessage = 'Erro ao salvar no Sanity.';
       if (error instanceof Error) {
         errorMessage += ` ${error.message}`;
       }
-      
+
       if (error instanceof Error && error.message.includes('token')) {
         errorMessage += '\n\n💡 Dica: Verifique se o token de escrita do Sanity está configurado corretamente no service.';
       }
-      
+
       alert(errorMessage);
     } finally {
       this.isSaving = false;

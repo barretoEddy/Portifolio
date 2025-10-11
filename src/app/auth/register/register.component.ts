@@ -113,10 +113,10 @@ export class RegisterComponent implements OnInit {
   private async redirectBasedOnRole() {
     // Aguardar um momento para garantir que a autenticação esteja processada
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     let attempts = 0;
     const maxAttempts = 15; // 3 segundos total (15 * 200ms)
-    
+
     while (attempts < maxAttempts) {
       const isLoggedIn = this.authService.isLoggedIn();
       const isAdmin = this.authService.isAdmin();
