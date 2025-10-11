@@ -18,7 +18,7 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isAdminAccess = false;
-  
+
   // Modal state
   isModalOpen = false;
   modalPolicyType: PolicyType = 'terms';
@@ -81,9 +81,8 @@ export class RegisterComponent implements OnInit {
           this.isLoading = false;
           this.successMessage = `Conta criada com sucesso, ${user.fullName}! Redirecionando...`;
 
-          setTimeout(() => {
-            this.redirectBasedOnRole();
-          }, 1500);
+          // Redirecionar imediatamente após sucesso
+          this.redirectBasedOnRole();
         },
         error: (error) => {
           this.isLoading = false;
@@ -91,12 +90,18 @@ export class RegisterComponent implements OnInit {
           // Tratamento de erro mais amigável baseado no tipo de erro Supabase
           if (error.message?.includes('User already registered')) {
             this.errorMessage = 'Este email já está cadastrado. Tente fazer login ou use outro email.';
+            // Se usuário já existe, oferecer redirecionamento para login
+            setTimeout(() => {
+              this.goToLogin();
+            }, 3000);
           } else if (error.message?.includes('Password should be at least')) {
             this.errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
           } else if (error.message?.includes('Unable to validate email address')) {
             this.errorMessage = 'Email inválido. Verifique o formato do email.';
           } else if (error.message?.includes('Signup is disabled')) {
             this.errorMessage = 'Cadastro temporariamente desabilitado. Tente novamente mais tarde.';
+          } else if (error.message?.includes('timeout') || error.message?.includes('Timeout') || error.name === 'TimeoutError') {
+            this.errorMessage = 'Timeout na conexão. Verifique sua internet e tente novamente.';
           } else {
             this.errorMessage = error.message || 'Erro ao criar conta. Tente novamente.';
           }
@@ -105,15 +110,36 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  private redirectBasedOnRole() {
-    if (this.authService.isAdmin()) {
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      this.router.navigate(['/protected-contact']);
-    }
-  }
+  private async redirectBasedOnRole() {
+    // Aguardar um momento para garantir que a autenticação esteja processada
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    let attempts = 0;
+    const maxAttempts = 15; // 3 segundos total (15 * 200ms)
+    
+    while (attempts < maxAttempts) {
+      const isLoggedIn = this.authService.isLoggedIn();
+      const isAdmin = this.authService.isAdmin();
+      const currentUser = this.authService.currentUserValue;
 
-  goToLogin() {
+      if (currentUser && isLoggedIn) {
+        if (isAdmin) {
+          this.router.navigate(['/admin/dashboard']);
+          return;
+        } else {
+          this.router.navigate(['/protected-contact']);
+          return;
+        }
+      }
+
+      // Aguardar antes da próxima tentativa
+      await new Promise(resolve => setTimeout(resolve, 200));
+      attempts++;
+    }
+
+    // Fallback: se não conseguiu determinar o role, assumir usuário normal
+    this.router.navigate(['/protected-contact']);
+  }  goToLogin() {
     const queryParams = this.isAdminAccess ? { adminAccess: true } : {};
     this.router.navigate(['/login'], { queryParams });
   }

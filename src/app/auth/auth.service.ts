@@ -28,25 +28,18 @@ export class AuthService {
 
     // Subscrever aos observables do SupabaseService - PERFIL
     this.supabaseService.currentProfile.subscribe(profile => {
-      //console.log('🔄 AuthService: Perfil atualizado:', profile ? { id: profile.id, role: profile.role } : null);
-
       if (profile) {
         const user = this.mapProfileToUser(profile);
         this.currentUserSubject.next(user);
-        //console.log('✅ AuthService: Usuário local atualizado:', { id: user.id, role: user.role, email: user.email });
       } else {
         this.currentUserSubject.next(null);
-        //console.log('🧹 AuthService: Usuário local limpo');
       }
     });
 
     // NOVO: Também subscrever ao usuário do Supabase para detectar quando sessão é restaurada
     this.supabaseService.currentUser.subscribe(supabaseUser => {
-      //console.log('🔄 AuthService: Usuário Supabase atualizado:', supabaseUser ? supabaseUser.email : null);
-
       if (supabaseUser && !this.currentUserSubject.value) {
         // Se temos usuário no Supabase mas não localmente, aguardar o perfil ser carregado
-        //console.log('⏳ AuthService: Aguardando perfil ser carregado...');
       }
     });
 
@@ -58,14 +51,10 @@ export class AuthService {
 
   // Método para inicializar estado do usuário baseado no token
   private initializeUserState(): void {
-    //console.log('🔄 AuthService: Inicializando estado do usuário...');
-
     const hasToken = this.hasValidSupabaseToken();
     const localUser = this.currentUserSubject.value;
 
     if (hasToken && !localUser) {
-      //console.log('🔧 AuthService: Token válido encontrado, mas sem usuário local. Forçando sincronização...');
-
       // Tentar obter dados do Supabase
       const supabaseUser = this.supabaseService.getCurrentUser();
       const supabaseProfile = this.supabaseService.getCurrentProfile();
@@ -73,7 +62,6 @@ export class AuthService {
       if (supabaseProfile) {
         const user = this.mapProfileToUser(supabaseProfile);
         this.currentUserSubject.next(user);
-        //console.log('✅ AuthService: Estado inicializado com perfil');
       } else if (supabaseUser) {
         const basicUser: User = {
           id: supabaseUser.id,
@@ -84,14 +72,10 @@ export class AuthService {
           createdAt: new Date(supabaseUser.created_at || Date.now())
         };
         this.currentUserSubject.next(basicUser);
-        //console.log('✅ AuthService: Estado inicializado com usuário básico');
 
         // IMPORTANTE: Forçar carregamento do perfil em background para corrigir role
-        //console.log('🔄 AuthService: Forçando carregamento do perfil em background...');
         setTimeout(() => {
-          this.supabaseService.initializeAuth().catch(error => {
-            //console.error('❌ AuthService: Erro ao carregar perfil em background:', error);
-          });
+          this.supabaseService.initializeAuth().catch(console.error);
         }, 500);
       }
     }
@@ -101,14 +85,7 @@ export class AuthService {
       const supabaseProfile = this.supabaseService.getCurrentProfile();
       const isEmailAdmin = this.isEmailAdmin(localUser.email);
 
-      console.log('🔍 AuthService: Verificando consistência admin:', {
-        isEmailAdmin,
-        profileRole: supabaseProfile?.role,
-        localRole: localUser.role
-      });
-
       if (isEmailAdmin && (!supabaseProfile || supabaseProfile.role !== 'admin')) {
-        //console.log('⚠️ AuthService: Inconsistência admin detectada. Forçando sync...');
         setTimeout(() => {
           this.supabaseService.initializeAuth().catch(console.error);
         }, 200);
@@ -222,59 +199,79 @@ export class AuthService {
     company?: string;
     password: string;
   }): Observable<User> {
-    //console.log('📝 AuthService.register(): Iniciando registro para:', userData.email);
-
     return from(this.supabaseService.signUp(userData.email, userData.password, {
       full_name: userData.fullName,
       company: userData.company
     })).pipe(
       switchMap(result => {
-        // console.log('📧 AuthService.register(): Resposta do signUp:', {
-        //   success: !result.error,
-        //   error: result.error?.message
-        // });
-
         if (result.error) {
           throw new Error(result.error.message || 'Erro ao criar conta');
         }
 
-        //console.log('⏳ AuthService.register(): Aguardando dados do usuário...');
+        // Estratégia mais robusta: tentar múltiplas abordagens
+        return from(new Promise<User>(async (resolve, reject) => {
+          try {
+            // Tentar aguardar pelo Observable por um tempo menor
+            const userFromObservable = await new Promise<User | null>((obsResolve) => {
+              const subscription = this.currentUser.pipe(
+                filter(user => user !== null),
+                take(1),
+                timeout(5000) // Timeout menor (5 segundos)
+              ).subscribe({
+                next: (user) => {
+                  subscription.unsubscribe();
+                  obsResolve(user);
+                },
+                error: () => {
+                  subscription.unsubscribe();
+                  obsResolve(null);
+                }
+              });
+            }).catch(() => null);
 
-        // Aguardar o perfil ser carregado com timeout
-        return this.currentUser.pipe(
-          filter(user => user !== null), // Filtrar apenas valores não-null
-          take(1), // Pegar apenas o primeiro valor válido
-          timeout(15000), // Timeout de 15 segundos (registro pode levar mais tempo)
-          map(user => {
-            // console.log('✅ AuthService.register(): Dados do usuário carregados:', {
-            //   id: user!.id,
-            //   email: user!.email,
-            //   role: user!.role
-            // });
-            return user!;
-          })
-        );
+            if (userFromObservable) {
+              resolve(userFromObservable);
+              return;
+            }
+
+            // Fallback: criar usuário manualmente baseado nos dados do Supabase
+            const supabaseUser = this.supabaseService.getCurrentUser();
+            if (supabaseUser) {
+              const user: User = {
+                id: supabaseUser.id,
+                fullName: userData.fullName,
+                email: userData.email,
+                company: userData.company,
+                role: this.isEmailAdmin(userData.email) ? 'admin' : 'user',
+                createdAt: new Date(supabaseUser.created_at || Date.now())
+              };
+
+              // Atualizar o subject manualmente
+              this.currentUserSubject.next(user);
+              resolve(user);
+              return;
+            }
+
+            reject(new Error('Erro ao obter dados do usuário após registro'));
+          } catch (error) {
+            reject(error);
+          }
+        }));
       })
     );
   }
 
   logout(): void {
-    //console.log('🚪 AuthService: Iniciando logout...');
-
     // Primeiro, limpar nosso estado local
-    //console.log('🧹 AuthService: Limpando estado local...');
     this.currentUserSubject.next(null);
 
     // NOVO: Limpar tokens do Supabase ANTES do logout oficial
-    //console.log('🗑️ AuthService: Limpando tokens do Supabase...');
     this.clearSupabaseTokens();
 
     // Depois, solicitar logout do Supabase (que já tem sua própria limpeza robusta)
     this.supabaseService.signOut().then(result => {
       if (result.error) {
-        //console.error('⚠️ AuthService: Erro no logout do Supabase:', result.error);
-      } else {
-        //console.log('✅ AuthService: Logout do Supabase bem-sucedido');
+        console.error('⚠️ AuthService: Erro no logout do Supabase:', result.error);
       }
 
       // Garantir que nosso estado local esteja limpo (dupla verificação)
@@ -288,14 +285,11 @@ export class AuthService {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('users');
         localStorage.removeItem('contactMessages');
-        //console.log('✅ AuthService: Dados legados removidos');
       } catch (error) {
-        //console.warn('⚠️ AuthService: Erro ao remover dados legados:', error);
+        console.warn('⚠️ AuthService: Erro ao remover dados legados:', error);
       }
-
-      //console.log('✅ AuthService: Logout concluído');
     }).catch(error => {
-      //console.error('❌ AuthService: Erro crítico no logout:', error);
+      console.error('❌ AuthService: Erro crítico no logout:', error);
 
       // Mesmo com erro, garantir que o estado local seja limpo
       this.currentUserSubject.next(null);
@@ -308,7 +302,7 @@ export class AuthService {
         localStorage.removeItem('users');
         localStorage.removeItem('contactMessages');
       } catch (cleanupError) {
-        //console.warn('⚠️ AuthService: Erro na limpeza de emergência:', cleanupError);
+        console.warn('⚠️ AuthService: Erro na limpeza de emergência:', cleanupError);
       }
     });
   }
@@ -325,17 +319,10 @@ export class AuthService {
         try {
           localStorage.removeItem(key);
           removedCount++;
-          //console.log(`🗑️ Token removido: ${key.substring(0, 20)}...`);
         } catch (error) {
-          //console.warn(`⚠️ Erro ao remover token ${key}:`, error);
+          console.warn(`⚠️ Erro ao remover token ${key}:`, error);
         }
       });
-
-      if (removedCount > 0) {
-        //console.log(`✅ ${removedCount} tokens do Supabase removidos`);
-      } else {
-        //console.log('ℹ️ Nenhum token do Supabase encontrado para remoção');
-      }
     } catch (error) {
       console.error('❌ Erro ao limpar tokens do Supabase:', error);
     }
@@ -361,8 +348,6 @@ export class AuthService {
 
     // 3. Se tem token válido mas não tem localUser, tentar criar um usuario local baseado no token
     if (hasValidToken && !localUser) {
-      //console.log('🔄 Token válido encontrado, mas localUser é null. Tentando recriar...');
-
       if (supabaseUser) {
         // Se temos usuário do Supabase mas sem perfil, criar um usuário básico
         const basicUser: User = {
@@ -374,12 +359,10 @@ export class AuthService {
           createdAt: new Date(supabaseUser.created_at || Date.now())
         };
 
-        //console.log('✅ Criando usuário local baseado no Supabase:', basicUser);
         this.currentUserSubject.next(basicUser);
         return true;
       } else {
         // Se não temos nem usuário do Supabase, forçar re-inicialização
-        //console.log('⚠️ Token válido mas sem usuário Supabase. Forçando inicialização...');
         this.supabaseService.initializeAuth().catch(console.error);
         return true; // Assumir logado baseado no token
       }
